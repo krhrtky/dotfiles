@@ -113,33 +113,17 @@ alias bd='cd ..'
 export CLICOLOR=1
 export LSCOLORS=DxGxcxdxCxegedabagacad
 
-export M3_HOME=/usr/local/apache-maven-3.3.9
-M3=$M3_HOME/bin
-export PATH=$M3:$PATH
+#export GOROOT=/usr/local/opt/go/libexec
+#export GOPATH=$HOME/.go
+#export PATH=$PATH:$GOROOT/bin
+#export PATH=$PATH:$GOPATH/bin
 
-export PATH=$HOME/.nodebrew/current/bin:$PATH
-export GOROOT=/usr/local/opt/go/libexec
-export GOPATH=$HOME/.go
-export PATH=$PATH:$GOROOT/bin
-export PATH=$PATH:$GOPATH/bin
+# *env
+export PATH="$HOME/.anyenv/bin:$PATH"
+eval "$(anyenv init -)"
 
-eval "$(rbenv init -)"
-eval "$(pyenv init -)"
-eval "$(goenv init -)"
-if which jenv > /dev/null; then
-  # JENV_ROOTがemptyの場合、'${HOME}/.jenv'がrootと設定される
-  export JENV_ROOT=/usr/local/var/jenv
-  eval "$(jenv init -)"
-fi
 export PATH="/usr/local/opt/openssl/bin:$PATH"
 zle -N peco-history-selection
 bindkey '^R' peco-history-selection
 
-export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
-
 ulimit -n 2048
-
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/Users/takuya.kurihara/.sdkman"
-[[ -s "/Users/takuya.kurihara/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/takuya.kurihara/.sdkman/bin/sdkman-init.sh"
-

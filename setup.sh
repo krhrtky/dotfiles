@@ -18,6 +18,16 @@ echo "[info] change dir ${CURRENT_DIR}"
 
 sudo echo "/usr/local/bin/zsh" >> /etc/shells
 
+git clone https://github.com/riywo/anyenv ~/.anyenv
+## TODO
+## change shell install *env.
+
+## TODO
+## install SDKman.
+
+## TODO
+## install powerline_shell.
+
 git clone https://github.com/krhrtky/dotfiles.git ~/dotfiles
 
 ## ln
