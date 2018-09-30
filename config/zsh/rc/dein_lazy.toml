@@ -1,0 +1,149 @@
+# markdown -------------- start
+[[plugins]]
+repo  = 'plasticboy/vim-markdown'
+on_ft = ['markdown']
+
+[[plugins]]
+repo  = 'kannokanno/previm'
+on_ft = ['markdown']
+
+[[plugins]]
+repo  = 'tyru/open-browser.vim'
+on_ft = ['markdown']
+
+# javascript -------------- start
+[[plugins]]
+repo  = 'Quramy/tsuquyomi'
+on_ft = ['typescript']
+hook_post_source = '''
+  call tsuquyomi#config#initBuffer({ 'pattern': '*.ts,*.tsx' })
+'''
+
+[[plugins]]
+repo  = 'mustardamus/jqapi'
+on_ft = ['javascript', 'typescript']
+
+[[plugins]]
+repo  = 'ternjs/tern_for_vim'
+on_ft = ['javascript', 'typescript']
+
+[[plugins]]
+repo  = 'tokuhirom/jsref'
+on_ft = ['javascript', 'typescript']
+
+[[plugins]]
+repo  = 'othree/yajs.vim'
+on_ft = ['javascript', 'typescript']
+
+[[plugins]]
+repo  = 'othree/es.next.syntax.vim'
+on_ft = ['javascript', 'typescript']
+
+[[plugins]]
+repo  = 'othree/javascript-libraries-syntax.vim'
+on_ft = ['javascript', 'typescript']
+
+[[plugins]]
+repo  = 'pangloss/vim-javascript'
+on_ft = ['javascript', 'typescript']
+
+[[plugins]]
+repo  = 'mxw/vim-jsx'
+on_ft = ['javascript', 'typescript']
+
+[[plugins]]
+repo = 'w0rp/ale'
+on_ft = ['javascript', 'typescript', 'php', 'ruby', 'go']
+# go -------------- start
+[[plugins]]
+repo  = 'nsf/gocode'
+on_ft = ['go']
+
+[[plugins]]
+repo  = 'fatih/vim-go'
+on_ft = ['go']
+
+[[plugins]]
+repo  = 'vim-jp/vim-go-extra'
+on_ft = ['go']
+
+[[plugins]]
+repo  = 'golang/lint'
+on_ft = ['go']
+
+#[[plugins]]
+#repo  = 'alecthomas/gometalinter'
+#on_ft = ['go']
+
+#[[plugins]]
+#repo  = 'dgryski/vim-godef'
+#on_ft = ['go']
+
+# html -------------- start
+[[plugins]]
+repo  = 'mattn/emmet-vim'
+on_ft = ['html', 'eruby', 'pug', 'javascript', 'typescript']
+
+[[plugins]]
+repo  = 'hail2u/vim-css3-syntax'
+on_ft = ['css', 'html', 'eruby', 'pug']
+
+# ryby -------------- start
+#[[plugins]]
+#repo = 'neocomplcache.vim'
+#on_ft = ['ruby']
+#
+[[plugins]]
+repo = 'NigoroJr/rsense'
+on_ft = ['ruby']
+#
+[[plugins]]
+repo = 'Shougo/neocomplcache-rsense.vim'
+on_ft = ['ruby']
+
+[[plugins]]
+repo = 'osyo-manga/vim-monster'
+on_ft = ['ruby']
+
+[[plugins]]
+repo = 'tpope/vim-endwise'
+on_ft = ['ruby']
+
+[[plugins]]
+repo = 'todesking/ruby_hl_lvar.vim'
+on_ft = ['ruby']
+
+[[plugins]]
+repo = 'tpope/vim-rails'
+on_ft = ['ruby']
+
+# vim confing --------------------------
+[[plugins]]
+repo = 'cespare/vim-toml'
+on_ft = ['toml']
+
+# インサートモードに入ったら読み込む
+[[plugins]]
+repo = 'Shougo/neocomplete.vim'
+on_i = 1
+
+[[plugins]]
+repo   = 'Shougo/unite.vim'
+
+# unite.vim を読み込んだら一緒に読み込む
+[[plugins]]
+repo      = 'Shougo/neomru.vim'
+on_source = ['unite.vim']
+
+# 特定のコマンドを打ったら読み込む
+[[plugins]]
+repo      = 'thinca/vim-prettyprint'
+on_cmd    = ['PP', 'PrettyPrint']
+
+# 特定のマッピングを使ったら読み込む
+# 又、gvim でしか利用しない
+[[plugins]]
+repo   = 'thinca/vim-fontzoom'
+on_cmd = ['Fontzoom']
+on_map = ['<Plug>(fontzoom-']
+gui    = 1
