@@ -1,0 +1,15 @@
+{
+  "segments": [
+    "ssh",
+    "cwd",
+    "git",
+    "hg",
+    "jobs",
+    "root",
+    "newline"
+  ],
+  "cwd": {
+    "mode": "dironly"
+  },
+  "theme": "solarized_dark"
+}
