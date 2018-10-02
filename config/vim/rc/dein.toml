@@ -58,6 +58,9 @@ repo = 'sbdchd/neoformat'
 [[plugins]]
 repo = 'tomasr/molokai'
 
+[[plugins]]
+repo = 'altercation/vim-colors-solarized'
+
 #[[plugins]]
 #repo = 'thinca/vim-ref'
 
