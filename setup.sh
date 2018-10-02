@@ -1,6 +1,8 @@
 #!/bin/sh
 CURRENT_DIR=`pwd`
 
+git clone https://github.com/krhrtky/dotfiles.git ~/dotfiles
+
 ## Homebrew
 echo "[info] install Homebrew."
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -27,8 +29,6 @@ git clone https://github.com/riywo/anyenv ~/.anyenv
 
 ## TODO
 ## install powerline_shell.
-
-git clone https://github.com/krhrtky/dotfiles.git ~/dotfiles
 
 ## ln
 ln -s ~/dotfiles/config/zsh/.zshrc ~/.zshrc
