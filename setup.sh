@@ -35,3 +35,5 @@ ln -s ~/dotfiles/config/zsh/.zshrc ~/.zshrc
 ln -s ~/dotfiles/config/tmux/.tmux.conf ~/.tmux.conf
 ln -s ~/dotfiles/config/vim/init.vim ~/.config/nvim/init.vim
 ln -s ~/dotfiles/config/powerline-shell/.powerline-shell.json ~/.powerline-shell.json
+
+chmod 755 /usr/local/share
