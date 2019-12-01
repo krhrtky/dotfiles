@@ -103,7 +103,6 @@ let g:vimproc_dll_path = '/Users/takuya.kurihara/.cache/dein/repos/github.com/Sh
 let g:ref_jquery_doc_path = s:dein_repo_dir . '/mustardamus/jqapi'
 let g:ref_javascript_doc_path = s:dein_repo_dir. '/tokuhirom/jsref/htdocs'
 
-set t_Co=256 " この設定がないと色が正しく表示されない
 
 " NERDTreeToggle shortcut
 map <C-n> :NERDTreeToggle<CR>
@@ -131,14 +130,14 @@ let g:ale_javascript_prettier_options = '--single-quote --trailing-comma es5'
 
 let g:ale_linters = {
 \   'javascript': ['eslint'],
-\   'typescript': ['tslint'],
+\   'typescript': ['eslint'],
 \   'go': ['gometalinter'],
 \   'ruby': ['rubocop'],
 \}
 
 let g:ale_fixers = {
       \ 'javascript': ['prettier', 'eslint'],
-      \ 'typescript': ['prettier'],
+      \ 'typescript': ['prettier', 'eslint'],
       \ }
 let g:ale_fix_on_save = 1
 let g:ale_javascript_prettier_use_local_config = 1
@@ -377,6 +376,8 @@ set fileencoding=utf-8
 set fileencodings=utf-8,euc-jp,shift_jis
 "colorscheme molokai
 colorscheme solarized
+set t_Co=256 " この設定がないと色が正しく表示されない
+set background=light
 set wildmenu
 set wildmode=full
 syntax on
@@ -434,4 +435,5 @@ nnoremap @t :vs<CR>:terminal<CR>
 tnoremap <C-q> <C-\><C-n>:q<CR>
 " ESCでターミナルモードからノーマルモードへ
 tnoremap <ESC> <C-\><C-n>
+set clipboard+=unnamedplus
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

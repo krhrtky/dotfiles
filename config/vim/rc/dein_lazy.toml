@@ -1,3 +1,8 @@
+# scala -------------- start
+[[plugins]]
+repo  = 'ensime/ensime-vim'
+on_ft = ['scala']
+
 # markdown -------------- start
 [[plugins]]
 repo  = 'plasticboy/vim-markdown'
@@ -14,50 +19,64 @@ on_ft = ['markdown']
 # javascript -------------- start
 [[plugins]]
 repo  = 'Quramy/tsuquyomi'
-on_ft = ['typescript']
+on_ft = ['typescript', 'vue']
 hook_post_source = '''
-  call tsuquyomi#config#initBuffer({ 'pattern': '*.ts,*.tsx' })
+  call tsuquyomi#config#initBuffer({ 'pattern': '*.ts,*.tsx,*.vue' })
 '''
+[[plugins]]
+repo  = 'Quramy/tsuquyomi-vue'
+on_ft = ['vue']
+
+[[plugins]]
+repo  = 'posva/vim-vue'
+on_ft = ['vue']
 
 [[plugins]]
 repo  = 'mustardamus/jqapi'
-on_ft = ['javascript', 'typescript']
+on_ft = ['javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo  = 'ternjs/tern_for_vim'
-on_ft = ['javascript', 'typescript']
-
-[[plugins]]
-repo  = 'tokuhirom/jsref'
-on_ft = ['javascript', 'typescript']
+on_ft = ['javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo  = 'othree/yajs.vim'
-on_ft = ['javascript', 'typescript']
+on_ft = ['javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo  = 'othree/es.next.syntax.vim'
-on_ft = ['javascript', 'typescript']
+on_ft = ['javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo  = 'othree/javascript-libraries-syntax.vim'
-on_ft = ['javascript', 'typescript']
+on_ft = ['javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo  = 'pangloss/vim-javascript'
-on_ft = ['javascript', 'typescript']
+on_ft = ['javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo  = 'mxw/vim-jsx'
-on_ft = ['javascript', 'typescript']
+on_ft = ['javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo = 'w0rp/ale'
-on_ft = ['javascript', 'typescript', 'php', 'ruby', 'go']
+on_ft = ['javascript', 'typescript', 'vue', 'php', 'ruby', 'go', 'scala']
+hook_source = '''
+    let g:ale_completion_enabled = 1
+'''
+depends = [
+    'ensime-vim'
+]
 # go -------------- start
 [[plugins]]
 repo  = 'nsf/gocode'
 on_ft = ['go']
+
+[[plugins]]
+repo  = 'deoplete-plugins/deoplete-go'
+build = ['make']
+
 
 [[plugins]]
 repo  = 'fatih/vim-go'
@@ -71,35 +90,14 @@ on_ft = ['go']
 repo  = 'golang/lint'
 on_ft = ['go']
 
-#[[plugins]]
-#repo  = 'alecthomas/gometalinter'
-#on_ft = ['go']
-
-#[[plugins]]
-#repo  = 'dgryski/vim-godef'
-#on_ft = ['go']
-
 # html -------------- start
 [[plugins]]
 repo  = 'mattn/emmet-vim'
-on_ft = ['html', 'eruby', 'pug', 'javascript', 'typescript']
+on_ft = ['html', 'eruby', 'pug', 'javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo  = 'hail2u/vim-css3-syntax'
 on_ft = ['css', 'html', 'eruby', 'pug']
-
-# ryby -------------- start
-#[[plugins]]
-#repo = 'neocomplcache.vim'
-#on_ft = ['ruby']
-#
-[[plugins]]
-repo = 'NigoroJr/rsense'
-on_ft = ['ruby']
-#
-[[plugins]]
-repo = 'Shougo/neocomplcache-rsense.vim'
-on_ft = ['ruby']
 
 [[plugins]]
 repo = 'osyo-manga/vim-monster'
@@ -127,8 +125,11 @@ on_ft = ['toml']
 repo = 'Shougo/neocomplete.vim'
 on_i = 1
 
+#[[plugins]]
+#repo   = 'Shougo/unite.vim'
+
 [[plugins]]
-repo   = 'Shougo/unite.vim'
+repo   = 'Shougo/denite.nvim'
 
 # unite.vim を読み込んだら一緒に読み込む
 [[plugins]]

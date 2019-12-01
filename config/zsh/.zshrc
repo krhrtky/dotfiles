@@ -110,13 +110,14 @@ alias view='nvim -R'
 alias cat='cat -n'
 alias less='less -NM'
 alias bd='cd ..'
+alias mkdir='mkdir -p'
 export CLICOLOR=1
 export LSCOLORS=DxGxcxdxCxegedabagacad
 
 #export GOROOT=/usr/local/opt/go/libexec
-#export GOPATH=$HOME/.go
+export GOPATH=$HOME/go
 #export PATH=$PATH:$GOROOT/bin
-#export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:$GOPATH/bin
 
 # *env
 export PATH="$HOME/.anyenv/bin:$PATH"
@@ -131,3 +132,16 @@ ulimit -n 2048
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+export PATH=${JAVA_HOME}/bin:${PATH}
+eval "$(direnv hook zsh)"
+
+# tabtab source for serverless package
+# uninstall by removing these lines or running `tabtab uninstall serverless`
+[[ -f /Users/takuya.kurihara/.npm/_npx/40791/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ]] && . /Users/takuya.kurihara/.npm/_npx/40791/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
+# tabtab source for sls package
+# uninstall by removing these lines or running `tabtab uninstall sls`
+[[ -f /Users/takuya.kurihara/.npm/_npx/40791/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /Users/takuya.kurihara/.npm/_npx/40791/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
+# tabtab source for slss package
+# uninstall by removing these lines or running `tabtab uninstall slss`
+[[ -f /Users/takuya.kurihara/.npm/_npx/53486/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zsh ]] && . /Users/takuya.kurihara/.npm/_npx/53486/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zshexport PATH="/usr/local/opt/mysql@5.6/bin:$PATH"

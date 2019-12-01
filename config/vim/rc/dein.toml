@@ -19,6 +19,25 @@ hook_post_update = '''
 '''
 
 [[plugins]]
+repo = 'Shougo/deoplete.nvim'
+on_event = 'InsertEnter'
+hook_source = '''
+    call deoplete#custom#option('sources', {
+        \ 'scala': ['buffer', 'dictionary', 'file', 'member', 'omni', 'tag'],
+        \})
+
+    call deoplete#custom#var('omni', 'input_patterns', {
+        \ 'scala': [
+        \     '[^. *\t]\.\w*',
+        \     '[:\[,] ?\w*',
+        \     '^import .*'
+        \   ]
+        \})
+
+    call deoplete#enable()
+'''
+
+[[plugins]]
 repo = 'Shougo/neosnippet.vim'
 
 [[plugins]]
@@ -26,6 +45,15 @@ repo = 'Shougo/neosnippet-snippets'
 
 [[plugins]]
 repo = 'Shougo/neocomplete.vim'
+
+[[plugins]]
+repo = 'Shougo/defx.nvim'
+
+[[plugins]]
+repo = 'roxma/nvim-yarp'
+
+[[plugins]]
+repo = 'roxma/vim-hug-neovim-rpc'
 
 # ブランチやタグを指定したいとき
 [[plugins]]
@@ -70,17 +98,11 @@ repo = 'mojako/ref-sources.vim'
 [[plugins]]
 repo  = 'scrooloose/nerdtree'
 
-#[[plugins]]
-#repo  = 'scrooloose/syntastic'
-
 [[plugins]]
 repo  = 'editorconfig/editorconfig-vim'
 
 [[plugins]]
 repo  = 'Townk/vim-autoclose'
-
-[[plugins]]
-repo  = 'tpope/vim-fugitive'
 
 [[plugins]]
 repo  = 'gregsexton/gitv'
