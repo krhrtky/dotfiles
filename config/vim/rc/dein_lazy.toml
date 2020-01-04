@@ -18,6 +18,15 @@ on_ft = ['markdown']
 
 # javascript -------------- start
 [[plugins]]
+repo  = 'jparise/vim-graphql'
+on_ft = ['graphql', 'javascript', 'typescript', 'vue']
+
+[[plugins]]
+repo  = 'neoclide/coc.nvim'
+on_ft = ['javascript', 'typescript', 'vue']
+build = './install.sh nightly'
+
+[[plugins]]
 repo  = 'Quramy/tsuquyomi'
 on_ft = ['typescript', 'vue']
 hook_post_source = '''
@@ -35,9 +44,9 @@ on_ft = ['vue']
 repo  = 'mustardamus/jqapi'
 on_ft = ['javascript', 'typescript', 'vue']
 
-[[plugins]]
-repo  = 'ternjs/tern_for_vim'
-on_ft = ['javascript', 'typescript', 'vue']
+#[[plugins]]
+#repo  = 'ternjs/tern_for_vim'
+#on_ft = ['javascript', 'typescript', 'vue']
 
 [[plugins]]
 repo  = 'othree/yajs.vim'
