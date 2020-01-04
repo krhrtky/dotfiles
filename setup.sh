@@ -1,11 +1,15 @@
 #!/bin/sh
 CURRENT_DIR=`pwd`
 
-git clone https://github.com/krhrtky/dotfiles.git ~/dotfiles
 
 ## Homebrew
 echo "[info] install Homebrew."
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+echo "[info] install git"
+brew install git
+
+git clone https://github.com/krhrtky/dotfiles.git ~/dotfiles
 
 (
   cd ~/dotfiles
