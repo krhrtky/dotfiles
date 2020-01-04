@@ -7,6 +7,8 @@ augroup auto_comment_off
   autocmd BufEnter * setlocal formatoptions-=o
 augroup END
 
+au BufNewFile,BufRead *.graphql setfiletype graphql
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" dein config start
 " プラグインが実際にインストールされるディレクトリ
 let s:dein_dir = expand('~/.cache/dein')
@@ -117,11 +119,6 @@ let g:go_highlight_structs = 1
 let g:go_bin_path = $GOPATH.'/bin'
 set rtp+=$GOPATH/src/github.com/golang/lint/misc/vim
 "autocmd BufWritePost,FileWritePost *.go execute 'Lint' | cwindow
-
-" TS config
-"let g:syntastic_typescript_checkers = ['tsuquyomi'] " You shouldn't use 'tsc' checker.u
-"autocmd BufRead,BufNewFile *.ts set filetype=typescript
-"autocmd BufNewFile,BufRead *.tsx set filetype=typescript
 
 au BufRead,BufNewFile *.md set filetype=markdown
 let g:previm_open_cmd = 'open -a "/Applications/Google Chrome.app"'
@@ -436,4 +433,9 @@ tnoremap <C-q> <C-\><C-n>:q<CR>
 " ESCでターミナルモードからノーマルモードへ
 tnoremap <ESC> <C-\><C-n>
 set clipboard+=unnamedplus
+
+autocmd BufNewFile,BufRead *.tsx let b:tsx_ext_found = 1
+autocmd BufNewFile,BufRead *.tsx set filetype=typescript.tsx
+au BufNewFile,BufRead *.graphql setfiletype graphql
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
