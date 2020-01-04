@@ -107,6 +107,11 @@ repo  = 'Townk/vim-autoclose'
 [[plugins]]
 repo  = 'gregsexton/gitv'
 
-#[[plugins]]
-#repo  = 'soramugi/auto-ctags.vim'
+[[plugins]]
+repo = 'tpope/vim-fugitive'
 
+[[plugins]]
+repo  = 'soramugi/auto-ctags.vim'
+
+[[plugins]]
+repo = 'junegunn/fzf.vim'
