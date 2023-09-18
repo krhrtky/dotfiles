@@ -1,10 +1,14 @@
-export ZPLUG_HOME=/usr/local/opt/zplug
+# Fig pre block. Keep at the top of this file.
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
+#export ZPLUG_HOME=/usr/local/opt/zplug
+export ZPLUG_HOME=/opt/homebrew/opt/zplug
 source $ZPLUG_HOME/init.zsh
 HISTFILE=~/.zsh_history
 HISTSIZE=6000000
 SAVEHIST=6000000
 setopt hist_ignore_dups     # ignore duplication command history list
 setopt share_history
+setopt auto_cd
 
 zplug "mafredri/zsh-async", from:github
 zplug "zsh-users/zsh-autosuggestions"
@@ -21,12 +25,6 @@ zplug "rupa/z", use:z.sh
 zplug "b4b4r07/enhancd", use:enhancd.sh
 
 
-# prezto のプラグインやテーマを使用する
-#zplug "modules/osx", from:prezto, if:"[[ $OSTYPE == *darwin* ]]"
-#zplug "modules/prompt", from:prezto
-## zstyle は zplug load の前に設定する
-#zstyle ':prezto:module:prompt' theme 'sorin'
-
 # install plugin
 if ! zplug check --verbose; then
   printf 'Install? [y/N]: '
@@ -36,23 +34,6 @@ if ! zplug check --verbose; then
 fi
 
 zplug load
-
-function powerline_precmd() {
-    PS1="$(powerline-shell --shell zsh $?)"
-}
-
-function install_powerline_precmd() {
-  for s in "${precmd_functions[@]}"; do
-    if [ "$s" = "powerline_precmd" ]; then
-      return
-    fi
-  done
-  precmd_functions+=(powerline_precmd)
-}
-
-if [ "$TERM" != "linux" ]; then
-    install_powerline_precmd
-fi
 
 function peco-history-selection() {
     BUFFER=`history -n 1 | tail -r  | awk '!a[$0]++' | peco`
@@ -119,9 +100,6 @@ export GOPATH=$HOME/go
 #export PATH=$PATH:$GOROOT/bin
 export PATH=$PATH:$GOPATH/bin
 
-# *env
-export PATH="$HOME/.anyenv/bin:$PATH"
-eval "$(anyenv init -)"
 
 export PATH="/usr/local/opt/openssl/bin:$PATH"
 zle -N peco-history-selection
@@ -145,3 +123,9 @@ eval "$(direnv hook zsh)"
 # tabtab source for slss package
 # uninstall by removing these lines or running `tabtab uninstall slss`
 [[ -f /Users/takuya.kurihara/.npm/_npx/53486/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zsh ]] && . /Users/takuya.kurihara/.npm/_npx/53486/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zshexport PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
+
+. /opt/homebrew/opt/asdf/libexec/asdf.sh
+eval "$(starship init zsh)"
+
+# Fig post block. Keep at the bottom of this file.
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
