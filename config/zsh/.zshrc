@@ -1,3 +1,5 @@
+# Amazon Q pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 # Fig pre block. Keep at the top of this file.
 [[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 #export ZPLUG_HOME=/usr/local/opt/zplug
@@ -124,8 +126,12 @@ eval "$(direnv hook zsh)"
 # uninstall by removing these lines or running `tabtab uninstall slss`
 [[ -f /Users/takuya.kurihara/.npm/_npx/53486/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zsh ]] && . /Users/takuya.kurihara/.npm/_npx/53486/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zshexport PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
 
-. /opt/homebrew/opt/asdf/libexec/asdf.sh
 eval "$(starship init zsh)"
+
+eval "$(mise activate zsh)"
 
 # Fig post block. Keep at the bottom of this file.
 [[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
+
+# Amazon Q post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
