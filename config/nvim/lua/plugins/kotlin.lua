@@ -10,7 +10,7 @@ return {
     ft = "kotlin",
     opts = {
       servers = {
-        kotlin_language_server = {},
+        kotlin_lsp = {},
       },
     },
   },
@@ -20,7 +20,7 @@ return {
     optional = true,
     dependencies = "williamboman/mason.nvim",
     opts = {
-      linters_by_ft = { kotlin = { "ktlint" } },
+      linters_by_ft = { kotlin = { "detekt" } },
     },
   },
   -- Add formatting
@@ -92,5 +92,19 @@ return {
         },
       }
     end,
+  },
+  -- Add test support
+  {
+    "nvim-neotest/neotest",
+    optional = true,
+    opts = {
+      adapters = {
+        ["neotest-kotlin"] = {
+          -- Configure kotlin test adapter
+          runner = "gradle",
+          framework = "junit5",
+        },
+      },
+    },
   },
 }

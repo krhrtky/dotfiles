@@ -11,6 +11,25 @@ return {
     keys = {
       { "<C-n>", "<cmd>Neotree toggle<cr>", desc = "NeoTree" },
     },
+    config = function()
+      require('neo-tree').setup {
+        close_if_last_window = true, -- Close Neo-tree if it is the last window left in the tab
+        filesystem = {
+          filtered_items = {
+            visible = true, -- when true, they will just be displayed differently than normal items
+          }
+        },
+        event_handlers = {
+          {
+            event = "file_opened",
+            handler = function(file_path)
+              -- Auto close neo-tree when file is opened
+              require("neo-tree.command").execute({ action = "close" })
+            end
+          },
+        }
+      }
+    end,
   },
   {
     'nvim-lualine/lualine.nvim',
