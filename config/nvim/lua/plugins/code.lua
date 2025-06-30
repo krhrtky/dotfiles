@@ -97,24 +97,217 @@ return {
     dependencies = { 
       'nvim-lua/plenary.nvim',
       'nvim-telescope/telescope-project.nvim',
+      { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+      'nvim-telescope/telescope-file-browser.nvim',
+      'nvim-telescope/telescope-live-grep-args.nvim',
     },
     keys = {
-      -- disable the keymap to grep files
-      {"<leader>/", false},
-      -- change a keymap
+      -- File operations
       { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
-      -- add a keymap to browse plugin files
-      {
-        "<leader>fp",
-        function() require("telescope.builtin").find_files({ cwd = require("lazy.core.config").options.root }) end,
-        desc = "Find Plugin File",
-      },
-      -- project management
+      { "<leader>fF", "<cmd>Telescope find_files hidden=true no_ignore=true<cr>", desc = "Find All Files" },
+      { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent Files" },
+      { "<leader>fb", "<cmd>Telescope file_browser<cr>", desc = "File Browser" },
+      { "<leader>fB", "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", desc = "File Browser (current dir)" },
+      
+      -- Search operations  
+      { "<leader>sg", "<cmd>Telescope live_grep<cr>", desc = "Live Grep" },
+      { "<leader>sG", "<cmd>Telescope live_grep_args<cr>", desc = "Live Grep with Args" },
+      { "<leader>sw", "<cmd>Telescope grep_string<cr>", desc = "Search Word under Cursor" },
+      { "<leader>sb", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Search in Buffer" },
+      { "<leader>sc", "<cmd>Telescope command_history<cr>", desc = "Command History" },
+      { "<leader>sh", "<cmd>Telescope help_tags<cr>", desc = "Help Tags" },
+      { "<leader>sm", "<cmd>Telescope man_pages<cr>", desc = "Man Pages" },
+      { "<leader>sk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
+      { "<leader>ss", "<cmd>Telescope builtin<cr>", desc = "Select Telescope" },
+      
+      -- Buffer operations
+      { "<leader>,", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Switch Buffer" },
+      { "<leader>;", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+      
+      -- Git operations
+      { "<leader>gc", "<cmd>Telescope git_commits<cr>", desc = "Git Commits" },
+      { "<leader>gb", "<cmd>Telescope git_branches<cr>", desc = "Git Branches" },
+      { "<leader>gs", "<cmd>Telescope git_status<cr>", desc = "Git Status" },
+      { "<leader>gf", "<cmd>Telescope git_files<cr>", desc = "Git Files" },
+      
+      -- LSP operations
+      { "<leader>lr", "<cmd>Telescope lsp_references<cr>", desc = "LSP References" },
+      { "<leader>ld", "<cmd>Telescope lsp_definitions<cr>", desc = "LSP Definitions" },
+      { "<leader>li", "<cmd>Telescope lsp_implementations<cr>", desc = "LSP Implementations" },
+      { "<leader>lt", "<cmd>Telescope lsp_type_definitions<cr>", desc = "LSP Type Definitions" },
+      { "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document Symbols" },
+      { "<leader>lS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace Symbols" },
+      
+      -- Project management
       { "<leader>pp", "<cmd>Telescope projects<cr>", desc = "Switch Project" },
+      
+      -- Plugin files
+      { "<leader>fp", function() require("telescope.builtin").find_files({ cwd = require("lazy.core.config").options.root }) end, desc = "Find Plugin File" },
+      
+      -- Resume last search
+      { "<leader>sr", "<cmd>Telescope resume<cr>", desc = "Resume Last Search" },
     },
     config = function()
-      require('telescope').setup({
+      local telescope = require('telescope')
+      local actions = require('telescope.actions')
+      local action_state = require('telescope.actions.state')
+      
+      telescope.setup({
+        defaults = {
+          prompt_prefix = " ",
+          selection_caret = " ",
+          path_display = { "truncate" },
+          file_ignore_patterns = { 
+            "%.git/", "node_modules/", "%.npm/", "%.cache/",
+            "build/", "dist/", "target/", "%.o", "%.a", "%.out", "%.class",
+            "%.pdf", "%.mkv", "%.mp4", "%.zip", "%.rar", "%.7z"
+          },
+          layout_config = {
+            horizontal = {
+              prompt_position = "top",
+              preview_width = 0.55,
+              results_width = 0.8,
+            },
+            vertical = {
+              mirror = false,
+            },
+            width = 0.87,
+            height = 0.80,
+            preview_cutoff = 120,
+          },
+          mappings = {
+            i = {
+              -- ["<C-n>"] = actions.cycle_history_next,
+              ["<C-p>"] = actions.cycle_history_prev,
+              ["<C-j>"] = actions.move_selection_next,
+              ["<C-k>"] = actions.move_selection_previous,
+              ["<C-c>"] = actions.close,
+              ["<Down>"] = actions.move_selection_next,
+              ["<Up>"] = actions.move_selection_previous,
+              ["<CR>"] = actions.select_default,
+              ["<C-x>"] = actions.select_horizontal,
+              ["<C-v>"] = actions.select_vertical,
+              ["<C-t>"] = actions.select_tab,
+              ["<C-u>"] = actions.preview_scrolling_up,
+              ["<C-d>"] = actions.preview_scrolling_down,
+              ["<PageUp>"] = actions.results_scrolling_up,
+              ["<PageDown>"] = actions.results_scrolling_down,
+              ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+              ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+              ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+              ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+              ["<C-l>"] = actions.complete_tag,
+              ["<C-_>"] = actions.which_key,
+              ["<C-w>"] = { "<c-s-w>", type = "command" },
+              ["<C-r><C-w>"] = function()
+                local word = vim.fn.expand("<cword>")
+                require('telescope.actions').insert_original_cword(vim.api.nvim_get_current_buf())
+              end,
+            },
+            n = {
+              ["<esc>"] = actions.close,
+              ["<CR>"] = actions.select_default,
+              ["<C-x>"] = actions.select_horizontal,
+              ["<C-v>"] = actions.select_vertical,
+              ["<C-t>"] = actions.select_tab,
+              ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+              ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+              ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+              ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+              ["j"] = actions.move_selection_next,
+              ["k"] = actions.move_selection_previous,
+              ["H"] = actions.move_to_top,
+              ["M"] = actions.move_to_middle,
+              ["L"] = actions.move_to_bottom,
+              ["<Down>"] = actions.move_selection_next,
+              ["<Up>"] = actions.move_selection_previous,
+              ["gg"] = actions.move_to_top,
+              ["G"] = actions.move_to_bottom,
+              ["<C-u>"] = actions.preview_scrolling_up,
+              ["<C-d>"] = actions.preview_scrolling_down,
+              ["<PageUp>"] = actions.results_scrolling_up,
+              ["<PageDown>"] = actions.results_scrolling_down,
+              ["?"] = actions.which_key,
+            },
+          },
+        },
+        pickers = {
+          find_files = {
+            find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
+            layout_config = {
+              height = 0.70,
+            },
+          },
+          live_grep = {
+            additional_args = function(opts)
+              return {"--hidden"}
+            end,
+          },
+          buffers = {
+            show_all_buffers = true,
+            sort_lastused = true,
+            theme = "dropdown",
+            previewer = false,
+            mappings = {
+              i = {
+                ["<c-d>"] = actions.delete_buffer,
+              },
+              n = {
+                ["dd"] = actions.delete_buffer,
+              },
+            },
+          },
+          git_files = {
+            show_untracked = true,
+          },
+          oldfiles = {
+            only_cwd = true,
+          },
+        },
         extensions = {
+          fzf = {
+            fuzzy = true,
+            override_generic_sorter = true,
+            override_file_sorter = true,
+            case_mode = "smart_case",
+          },
+          file_browser = {
+            theme = "dropdown",
+            hijack_netrw = true,
+            mappings = {
+              ["i"] = {
+                ["<A-c>"] = telescope.extensions.file_browser.actions.create,
+                ["<S-CR>"] = telescope.extensions.file_browser.actions.create_from_prompt,
+                ["<A-r>"] = telescope.extensions.file_browser.actions.rename,
+                ["<A-m>"] = telescope.extensions.file_browser.actions.move,
+                ["<A-y>"] = telescope.extensions.file_browser.actions.copy,
+                ["<A-d>"] = telescope.extensions.file_browser.actions.remove,
+                ["<C-o>"] = telescope.extensions.file_browser.actions.open,
+                ["<C-g>"] = telescope.extensions.file_browser.actions.goto_parent_dir,
+                ["<C-e>"] = telescope.extensions.file_browser.actions.goto_home_dir,
+                ["<C-w>"] = telescope.extensions.file_browser.actions.goto_cwd,
+                ["<C-t>"] = telescope.extensions.file_browser.actions.change_cwd,
+                ["<C-f>"] = telescope.extensions.file_browser.actions.toggle_browser,
+                ["<C-h>"] = telescope.extensions.file_browser.actions.toggle_hidden,
+                ["<C-s>"] = telescope.extensions.file_browser.actions.toggle_all,
+              },
+              ["n"] = {
+                ["c"] = telescope.extensions.file_browser.actions.create,
+                ["r"] = telescope.extensions.file_browser.actions.rename,
+                ["m"] = telescope.extensions.file_browser.actions.move,
+                ["y"] = telescope.extensions.file_browser.actions.copy,
+                ["d"] = telescope.extensions.file_browser.actions.remove,
+                ["o"] = telescope.extensions.file_browser.actions.open,
+                ["g"] = telescope.extensions.file_browser.actions.goto_parent_dir,
+                ["e"] = telescope.extensions.file_browser.actions.goto_home_dir,
+                ["w"] = telescope.extensions.file_browser.actions.goto_cwd,
+                ["t"] = telescope.extensions.file_browser.actions.change_cwd,
+                ["f"] = telescope.extensions.file_browser.actions.toggle_browser,
+                ["h"] = telescope.extensions.file_browser.actions.toggle_hidden,
+                ["s"] = telescope.extensions.file_browser.actions.toggle_all,
+              },
+            },
+          },
           project = {
             base_dirs = {
               '~/projects',
@@ -127,11 +320,23 @@ return {
             search_by = "title",
             sync_with_nvim_tree = true,
           },
+          live_grep_args = {
+            auto_quoting = true,
+            mappings = {
+              i = {
+                ["<C-k>"] = require("telescope-live-grep-args.actions").quote_prompt(),
+                ["<C-i>"] = require("telescope-live-grep-args.actions").quote_prompt({ postfix = " --iglob " }),
+              },
+            },
+          },
         },
       })
       
       -- Load extensions
-      require('telescope').load_extension('projects')
+      telescope.load_extension('fzf')
+      telescope.load_extension('projects')
+      telescope.load_extension('file_browser')
+      telescope.load_extension('live_grep_args')
     end,
   },
   {
@@ -190,10 +395,22 @@ return {
   },
   {
     'Wansmer/treesj',
-    keys = { '<space>m', '<space>j', '<space>s' },
+    keys = { 
+      { '<leader>tj', function() require('treesj').toggle() end, desc = 'Toggle TreeSJ' },
+      { '<leader>ts', function() require('treesj').split() end, desc = 'TreeSJ Split' },
+      { '<leader>tm', function() require('treesj').join() end, desc = 'TreeSJ Join' },
+    },
     dependencies = { 'nvim-treesitter/nvim-treesitter' }, -- if you install parsers with `nvim-treesitter`
     config = function()
-      require('treesj').setup({--[[ your config ]]})
+      require('treesj').setup({
+        use_default_keymaps = false,
+        check_syntax_error = true,
+        max_join_length = 120,
+        cursor_behavior = 'hold',
+        notify = true,
+        langs = {},
+        dot_repeat = true,
+      })
     end,
   },
   {
