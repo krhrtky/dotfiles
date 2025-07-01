@@ -222,14 +222,6 @@ keymap.set("t", "<C-l>", "<cmd>wincmd l<cr>", { desc = "Go to right window" })
 keymap.set("t", "<C-/>", "<cmd>close<cr>", { desc = "Hide Terminal" })
 keymap.set("t", "<c-_>", "<cmd>close<cr>", { desc = "which_key_ignore" })
 
--- Enhanced command-line editing
-keymap.set("c", "<C-a>", "<Home>", { desc = "Go to beginning" })
-keymap.set("c", "<C-e>", "<End>", { desc = "Go to end" })
-keymap.set("c", "<C-h>", "<Left>", { desc = "Move left" })
-keymap.set("c", "<C-l>", "<Right>", { desc = "Move right" })
-keymap.set("c", "<C-b>", "<S-Left>", { desc = "Move word left" })
-keymap.set("c", "<C-f>", "<S-Right>", { desc = "Move word right" })
-
 -- IDE-like commenting (requires tpope/vim-commentary or similar)
 keymap.set("n", "<leader>/", "gcc", { desc = "Toggle comment", remap = true })
 keymap.set("v", "<leader>/", "gc", { desc = "Toggle comment", remap = true })

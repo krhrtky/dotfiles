@@ -61,10 +61,8 @@ function M.use_intellij()
   -- Backup current keymaps first
   backup_keymaps()
   
-  -- Check if we're on macOS for Cmd key support
-  if vim.fn.has("mac") == 0 then
-    vim.notify("IntelliJ keymap optimized for macOS. Some Cmd key mappings may not work.", vim.log.levels.WARN)
-  end
+  -- IntelliJ keymap is now terminal-compatible across all platforms
+  vim.notify("Loading terminal-compatible IntelliJ keymap...", vim.log.levels.INFO)
   
   -- Load IntelliJ keymaps
   local success, intellij_keymaps = pcall(require, 'config.intellij-keymaps')
@@ -82,13 +80,15 @@ function M.use_intellij()
     end, { desc = 'Switch to IntelliJ IDEA keymap' })
     
     -- Show some key mappings for reference
-    vim.notify("Key IntelliJ shortcuts:\n" ..
-               "Cmd+O: Go to File\n" ..
-               "Cmd+Shift+O: Find in Files\n" ..
-               "Cmd+1: Project Tree\n" ..
-               "Cmd+/: Comment Line\n" ..
-               "Cmd+L: Duplicate Line\n" ..
-               "F1: Quick Documentation", vim.log.levels.INFO)
+    vim.notify("Key IntelliJ shortcuts (terminal-compatible):\n" ..
+               "Ctrl+O: Go to File\n" ..
+               "Ctrl+Shift+O: Find in Files\n" ..
+               "Alt+1: Project Tree\n" ..
+               "Ctrl+/: Comment Line\n" ..
+               "<leader>ld: Duplicate Line\n" ..
+               "F1: Quick Documentation\n" ..
+               "F9: Build Project\n" ..
+               "F12: Terminal", vim.log.levels.INFO)
   else
     vim.notify("Failed to load IntelliJ keymap: " .. tostring(intellij_keymaps), vim.log.levels.ERROR)
   end
@@ -134,7 +134,7 @@ function M.status()
   local status = {
     current = M.current_keymap,
     intellij_loaded = M.intellij_loaded,
-    macos = vim.fn.has("mac") == 1,
+    terminal_compatible = true,
   }
   
   vim.notify("Current keymap: " .. M.current_keymap, vim.log.levels.INFO)
