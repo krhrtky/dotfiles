@@ -71,6 +71,240 @@ F12             ターミナル
 
 ---
 
+## ⚙️ コア設定 (lua/config/)
+
+### options.lua - Neovimオプション設定
+Neovimデフォルトから変更されている主要設定：
+
+#### 表示設定
+- `number = true` - 行番号表示
+- `background = "light"` - ライトテーマ
+- `cursorline = true` - カーソル行ハイライト
+- `laststatus = 3` - グローバルステータスライン
+
+#### インデント設定 (デフォルト: 8スペースタブ)
+- `tabstop = 2` - タブ幅2スペース
+- `softtabstop = 2` - ソフトタブ2スペース
+- `shiftwidth = 2` - 自動インデント2スペース
+- `expandtab = true` - タブをスペースに変換
+
+#### 検索設定
+- `ignorecase = true` - 大文字小文字無視
+- `smartcase = true` - 大文字入力時は区別
+
+#### システム連携
+- `clipboard = "unnamedplus"` - システムクリップボード連携
+- `directory = "/tmp"` - スワップファイルを/tmpに配置
+
+#### 補完設定
+- `completeopt = "menuone"` - メニューのみ表示
+
+### keymaps.lua - プラグイン専用キーマップ
+**重要**: 標準Vim操作は変更せず、プラグイン機能のみ追加
+
+#### ウィンドウ操作
+- `<C-hjkl>` - ウィンドウ間移動
+- `<C-arrows>` - ウィンドウサイズ変更
+
+#### バッファ管理
+- `[b` / `]b` - 前/次のバッファ
+- `<leader>bb` - 直前のバッファに切り替え
+- `<leader>bd` - バッファ削除（保存確認付き）
+
+#### 高度な保存・終了
+- インテリジェントな終了処理（未保存ファイル確認）
+- 複数保存オプション
+
+#### LSP統合（非競合）
+- `<leader>ca` - コードアクション
+- `<leader>cr` - リネーム
+- `<leader>cd` - 診断表示
+- `]d` / `[d` - 診断間移動
+
+### keymap-switcher.lua - キーマップ切り替えシステム
+**機能**: デフォルトとIntelliJ keymap間の動的切り替え
+
+#### 主要機能
+- バックアップ・復元システム
+- 状態管理（current: default/intellij）
+- コマンドとWhich-key統合
+
+#### 利用可能コマンド
+- `:KeymapToggle` - 切り替え
+- `:IntellijKeymap` - IntelliJに変更
+- `:DefaultKeymap` - デフォルトに戻す
+- `:KeymapStatus` - 現在状態表示
+
+### intellij-keymaps.lua - IntelliJ風ショートカット
+**重要**: Vim標準操作は一切変更せず、プラグイン機能のみ提供
+
+#### 設計原則
+- 全てのVim標準操作を保持
+- ターミナル互換キー組み合わせ
+- プラグイン機能への直感的アクセス
+
+### lazy.lua - プラグインマネージャー設定
+- 自動ブートストラップ
+- リーダーキー設定（Space / Backslash）
+- 自動プラグイン更新チェック
+- エラーハンドリング付きgitクローン
+
+---
+
+## 🔌 プラグイン設定 (lua/plugins/)
+
+### code.lua - 開発ツール
+
+#### LSP・補完基盤
+- **lsp-zero.nvim** (v3.x) - LSP設定フレームワーク
+- **mason.nvim** - LSPサーバー管理（`:Mason`）
+- **nvim-lspconfig** - LSP クライアント設定
+- **nvim-cmp** - 補完エンジン（`<C-Space>` 補完トリガー）
+- **LuaSnip** - スニペットエンジン
+
+#### Telescope - ファジーファインダー
+**包括的検索・ナビゲーションシステム**
+```bash
+# ファイル・プロジェクト
+<leader>ff      # find_files
+<leader>fr      # 最近のファイル  
+<leader>,       # バッファ切り替え
+<leader>fp      # プロジェクト検索
+
+# コード・シンボル
+<leader>sg      # live_grep 文字列検索
+<leader>sw      # カーソル下の単語検索
+<leader>lr      # LSP参照
+<leader>ld      # LSP定義
+
+# Git統合
+<leader>gc      # Gitコミット
+<leader>gb      # Gitブランチ
+<leader>gs      # Gitステータス
+```
+
+#### 診断・デバッグ
+- **trouble.nvim** - 診断ビューア（`<leader>xx` 診断表示）
+- **tiny-inline-diagnostic.nvim** - インライン診断
+- **nvim-dap** - デバッグアダプタープロトコル
+  - `<F5>` 実行継続 / `<F1-F3>` ステップ制御
+  - `<leader>b` ブレークポイント切り替え
+
+#### コード操作・ユーティリティ
+- **treesj** - スマート結合・分割（`<leader>tj/ts/tm`）
+- **dial.nvim** - 数値・日付・ブール値のインクリメント
+- **nvim-autopairs** - 自動括弧ペア
+- **toggleterm.nvim** - ターミナル統合（`<C-\>` トグル）
+- **project.nvim** - プロジェクト検出・管理
+- **neotest** - テストフレームワーク
+
+### ui.lua - ユーザーインターフェース
+
+#### ファイル・ナビゲーション
+- **neo-tree.nvim** - ファイルエクスプローラー（`<C-n>` トグル）
+- **bufferline.nvim** - 高機能バッファタブ
+  - `<S-h>/<S-l>` 前/次バッファ
+  - `<leader>1-9` 直接バッファアクセス
+  - `<leader>bp/bc/bo` ピック・クローズ・その他クローズ
+
+#### ステータス・表示
+- **lualine.nvim** - ステータスライン（solarized_light）
+- **which-key.nvim** - キーマップヒント
+- **incline.nvim** - 分割ウィンドウでのファイル名表示
+
+#### 構文・ビジュアル
+- **nvim-treesitter** - 構文ハイライト（多言語対応）
+- **indent-blankline.nvim** - インデントガイド・スコープ表示
+- **nvim-hlslens** - 検索結果ハイライト
+
+#### 高速ナビゲーション
+- **flash.nvim** - 高度モーション
+  - `s` フラッシュジャンプ / `S` treesitter
+  - `r` リモート / `R` treesitter検索
+- **harpoon** - ファイルマーク
+  - `<leader>ha` 追加 / `<leader>hh` メニュー
+  - `<leader>h1-4` マークファイル選択
+
+### editor.lua - エディター機能拡張
+
+#### ファイル操作
+- **oil.nvim** - ディレクトリをバッファとして編集
+  - `<leader>-` 親ディレクトリ / `<leader>e` 現在ディレクトリ
+  - ファイル操作後 `:w` で変更反映
+
+#### テキスト操作
+- **nvim-surround** - テキスト囲み操作
+  - `ys` 追加 / `ds` 削除 / `cs` 変更
+  - Visual: `S` 選択範囲を囲む
+- **vim-visual-multi** - マルチカーソル
+  - `<C-m>` 単語選択 / `<C-Down>/<C-Up>` マルチカーソル
+- **Comment.nvim** - コメント機能
+  - `gcc` 行コメント / `gc` 範囲コメント / `<leader>/` トグル
+
+#### 品質・セッション
+- **nvim-bqf** - 改良quickfix（プレビュー・フィルタリング）
+- **auto-session** - セッション管理
+  - `<leader>Sr/Ss/Sa/Sd/Sf` 復元/保存/トグル/削除/検索
+- **nvim-ufo** - 高度フォールディング（`zp` プレビュー）
+
+### git.lua - Git統合
+- **gitsigns.nvim** - Git gutter・統合
+- **gitlinker.nvim** - Git リンク生成
+  - `<leader>gy` リンクヤンク / `<leader>gY` リンクオープン
+
+### colorscheme.lua - カラーテーマ
+- **solarized.nvim** - Solarized Light テーマ（高優先度読み込み）
+
+### 言語サポート
+
+#### kotlin.lua - Kotlin開発
+- **kotlin_lsp** - 言語サーバー
+- **ktlint** - フォーマット・リント（Mason経由）
+- **detekt** - 追加リント
+- **kotlin-debug-adapter** - デバッグサポート
+- **neotest-kotlin** - テストアダプター（Gradle・JUnit5）
+
+#### rust.lua - Rust開発  
+- **rust-analyzer** - 包括的LSP設定
+  - Cargo機能・ビルドスクリプト・clippyサポート
+- **rust-tools.nvim** - Rust特化ツール
+  - `<C-space>` ホバーアクション / `<Leader>a` コードアクション
+- **crates.nvim** - Cargo依存関係管理
+- **lldb** - デバッガーアダプター
+
+### spec1.lua - 追加ユーティリティ
+- **neorg** - ノート・組織化（.norgファイル）
+- **vim-startuptime** - 起動時間分析（`StartupTime`）
+- **dressing.nvim** - UI コンポーネント強化
+- **noice.nvim** - 通知UI改善
+
+---
+
+## 📊 設定サマリー
+
+### デフォルトからの主要変更点
+1. **インデント**: 8スペースタブ → 2スペース
+2. **テーマ**: ダーク → ライト（Solarized Light）
+3. **ステータス**: ウィンドウ毎 → グローバルステータスライン
+4. **クリップボード**: Vim内部のみ → システム連携
+5. **補完**: 複数オプション → メニューのみ表示
+6. **スワップファイル**: カレントディレクトリ → /tmp配置
+
+### キーマップ設計思想
+- **標準Vim操作**: 完全保持（hjkl, /, ?, n, N, i, a, o, d, y, p等）
+- **プラグイン操作**: `<leader>`、`<C-*>`、`<F*>`、`]`/`[`プレフィックス使用
+- **IntelliJ互換**: 追加レイヤーとして提供、標準操作を上書きしない
+- **ターミナル互換**: 全ショートカットがターミナルで動作
+
+### プラグイン構成
+- **総プラグイン数**: 約40個
+- **LSP対応言語**: Kotlin、Rust、JavaScript、TypeScript、Lua、Python等
+- **UI強化**: ファイルエクスプローラー、ステータスライン、バッファタブ
+- **開発支援**: 診断、デバッグ、テスト、Git統合
+- **ナビゲーション**: ファジーファインダー、高速ジャンプ、ファイルマーク
+
+---
+
 ## 📁 ファイル操作 & ナビゲーション
 
 ### Neo-tree (ファイルエクスプローラー)

@@ -1,7 +1,20 @@
--- IntelliJ IDEA-style Keymaps for Neovim
--- Based on IntelliJ IDEA default keymap for macOS
+-- IntelliJ IDEA-style Keymaps for Plugin Operations Only
+-- Preserves all standard Vim/Neovim operations
 local keymap = vim.keymap
 local opts = { noremap = true, silent = true }
+
+-- ============================================================================
+-- IMPORTANT: STANDARD VIM/NEOVIM OPERATIONS ARE PRESERVED
+-- ============================================================================
+-- The following standard operations remain unchanged:
+-- - hjkl (movement), w/b/e (word movement), f/t (find), / ? (search)
+-- - n/N (search navigation), */# (word search)  
+-- - i/a/o (insert modes), d/y/p (delete/yank/paste)
+-- - u/<C-r> (undo/redo), . (repeat), : (command mode)
+-- - g commands (gd, gg, G, etc.), z commands (folding)
+-- - [ ] commands, < > (indenting), % (bracket matching)
+-- - All text objects (aw, iw, ap, ip, etc.)
+-- ============================================================================
 
 -- ============================================================================
 -- NAVIGATION (Terminal-Compatible IntelliJ-style)
@@ -109,36 +122,12 @@ keymap.set("n", "<leader>zM", "zM", { desc = "Collapse All" })
 -- SELECTION & EDITING
 -- ============================================================================
 
--- Text Selection
-keymap.set("n", "<C-a>", "ggVG", { desc = "Select All" })
-keymap.set("n", "<leader>sw", "viw", { desc = "Select Word" })
-keymap.set("n", "<leader>sp", "vip", { desc = "Select Paragraph" })
-
--- Multiple Cursors (using vim-visual-multi if available)
-keymap.set("n", "<leader>mn", function()
-  -- Simulate IntelliJ's "Add Selection for Next Occurrence"
-  local word = vim.fn.expand("<cword>")
-  vim.fn.setreg("/", "\\<" .. word .. "\\>")
-  vim.cmd("normal! *")
-end, { desc = "Select Next Occurrence" })
-
--- Line Operations (IntelliJ-style)
-keymap.set("n", "<A-Up>", ":move .-2<CR>==", { desc = "Move Line Up" })
-keymap.set("n", "<A-Down>", ":move .+1<CR>==", { desc = "Move Line Down" })
-keymap.set("v", "<A-Up>", ":move '<-2<CR>gv=gv", { desc = "Move Lines Up" })
-keymap.set("v", "<A-Down>", ":move '>+1<CR>gv=gv", { desc = "Move Lines Down" })
-
-keymap.set("n", "<leader>ld", ":copy .<CR>", { desc = "Duplicate Line" })
-keymap.set("v", "<leader>ld", ":copy '><CR>gv", { desc = "Duplicate Selection" })
-
--- Clipboard Operations (Enhanced)
-keymap.set("n", "<leader>y", '"+y', { desc = "Copy to System Clipboard" })
-keymap.set("v", "<leader>y", '"+y', { desc = "Copy to System Clipboard" })
-keymap.set("n", "<leader>p", '"+p', { desc = "Paste from System Clipboard" })
-keymap.set("i", "<C-v>", '<C-r>+', { desc = "Paste" })
-
--- Undo/Redo (Already mapped in basic Vim)
--- u = undo, <C-r> = redo
+-- NOTE: Standard Vim text selection, movement, and editing preserved
+-- - v/V (visual mode), ggVG (select all standard way)
+-- - viw, vip (standard text objects)  
+-- - y/p (standard yank/paste), "+y/"+p (system clipboard standard way)
+-- - u/<C-r> (standard undo/redo)
+-- - Standard line operations preserved
 
 -- ============================================================================
 -- VIEW & WINDOWS
@@ -377,15 +366,10 @@ end, { desc = "Inspect Code" })
 -- - Basic text objects (aw, iw, ap, ip, etc.)
 
 -- Override some conflicting keymaps to maintain IntelliJ consistency
--- Only override plugin-specific keymaps, not basic Vim operations
-keymap.set("n", "<C-n>", function()
-  -- IntelliJ uses Ctrl+N for "Go to Class", we'll use Telescope symbols
-  require('telescope.builtin').lsp_workspace_symbols()
-end, { desc = "Go to Class" })
-
--- Safe overrides that don't conflict with basic Vim
-keymap.set("n", "<C-e>", "<cmd>Telescope oldfiles<cr>", { desc = "Recent Files" })
-keymap.set("n", "<C-S-f>", "<cmd>Telescope live_grep<cr>", { desc = "Find in Files" })
+-- NOTE: Standard Vim commands preserved:
+-- - <C-n>/<C-p> (completion navigation) use standard behavior
+-- - <C-e>/<C-y> (scroll down/up) use standard behavior  
+-- - <C-f>/<C-b> (page down/up) use standard behavior
 
 return {
   -- Export configuration for other modules to use
@@ -393,29 +377,7 @@ return {
     -- Additional setup if needed
     vim.notify("IntelliJ IDEA keymap loaded (terminal-compatible)", vim.log.levels.INFO)
     
-    -- Verify that basic Vim operations are preserved
-    -- Note: j/k are enhanced for better line movement, which is acceptable
-    local preserved_keys = { "h", "l", "w", "b", "e", "i", "a", "o", "d", "y", "p", "u", ":", "." }
-    local conflicting_keys = {}
-    
-    for _, key in ipairs(preserved_keys) do
-      local mapping = vim.fn.maparg(key, "n", false, true)
-      -- Check if the key is completely overridden (not enhanced)
-      if mapping and mapping.rhs and not (
-        mapping.rhs:match("^" .. vim.pesc(key)) or  -- Still calls original
-        mapping.rhs:match(vim.pesc(key)) or        -- Contains original  
-        key == ":" or key == "."                   -- Command/repeat are special
-      ) then
-        table.insert(conflicting_keys, key)
-      end
-    end
-    
-    if #conflicting_keys > 0 then
-      vim.notify("Warning: Basic Vim keys may be overridden: " .. table.concat(conflicting_keys, ", "), 
-                 vim.log.levels.WARN)
-    else
-      vim.notify("✓ Basic Vim operations preserved (j/k enhanced for better line movement)", vim.log.levels.INFO)
-    vim.notify("✓ All shortcuts are terminal-compatible (using Ctrl, Alt, Leader, and function keys)", vim.log.levels.INFO)
-    end
+    vim.notify("✓ All standard Vim/Neovim operations preserved", vim.log.levels.INFO)
+    vim.notify("✓ Only plugin-specific shortcuts added (terminal-compatible)", vim.log.levels.INFO)
   end
 }

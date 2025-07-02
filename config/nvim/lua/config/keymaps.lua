@@ -1,10 +1,8 @@
--- Enhanced Keymaps for IDE-like Experience
+-- Plugin-specific Keymaps (Neovim Standard Compliant)
 local keymap = vim.keymap
 local opts = { noremap = true, silent = true }
 
--- Better up/down
-keymap.set({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-keymap.set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+-- NOTE: Basic Vim/Neovim operations (j, k, h, l, /, ?, n, N, *, #, etc.) remain unchanged
 
 -- Move to window using the <ctrl> hjkl keys
 keymap.set("n", "<C-h>", "<C-w>h", { desc = "Go to left window", remap = true })
@@ -18,13 +16,10 @@ keymap.set("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease window heig
 keymap.set("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window width" })
 keymap.set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
 
--- Buffer Navigation (IDE-like)
-keymap.set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
-keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+-- Buffer Navigation (Plugin-specific only)
 keymap.set("n", "[b", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
 keymap.set("n", "]b", "<cmd>bnext<cr>", { desc = "Next buffer" })
 keymap.set("n", "<leader>bb", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
-keymap.set("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
 
 -- Buffer Management
 keymap.set("n", "<leader>bd", function()
@@ -99,10 +94,7 @@ end, { desc = "Quit All" })
 
 keymap.set("n", "<leader>Q", "<cmd>qa!<cr>", { desc = "Quit All (Force)" })
 
--- Clear search with <esc>
-keymap.set({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
-
--- Better indenting
+-- Better indenting (keep selected after indent)
 keymap.set("v", "<", "<gv")
 keymap.set("v", ">", ">gv")
 
@@ -121,32 +113,7 @@ keymap.set("n", "]q", vim.cmd.cnext, { desc = "Next quickfix" })
 keymap.set("n", "[l", vim.cmd.lprev, { desc = "Previous location" })
 keymap.set("n", "]l", vim.cmd.lnext, { desc = "Next location" })
 
--- Enhanced Search
-keymap.set("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next search result" })
-keymap.set("x", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next search result" })
-keymap.set("o", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next search result" })
-keymap.set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev search result" })
-keymap.set("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev search result" })
-keymap.set("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev search result" })
-
--- Enhanced word search
-keymap.set("n", "*", function()
-  local word = vim.fn.expand("<cword>")
-  if word ~= "" then
-    vim.fn.setreg("/", "\\<" .. word .. "\\>")
-    vim.opt.hlsearch = true
-    vim.cmd("normal! n")
-  end
-end, { desc = "Search word under cursor" })
-
-keymap.set("n", "#", function()
-  local word = vim.fn.expand("<cword>")
-  if word ~= "" then
-    vim.fn.setreg("/", "\\<" .. word .. "\\>")
-    vim.opt.hlsearch = true
-    vim.cmd("normal! N")
-  end
-end, { desc = "Search word under cursor (reverse)" })
+-- NOTE: Search operations (/, ?, n, N, *, #) use Neovim standard behavior
 
 -- Enhanced text editing
 keymap.set("n", "<leader>y", '"+y', { desc = "Yank to system clipboard" })
@@ -166,26 +133,7 @@ keymap.set("v", "<leader>ln", ":move '>+1<CR>gv=gv", { desc = "Move selection do
 keymap.set("n", "<leader>ld", ":copy .<CR>", { desc = "Duplicate line" })
 keymap.set("v", "<leader>ld", ":copy '><CR>gv", { desc = "Duplicate selection" })
 
--- Join lines without space
-keymap.set("n", "gJ", function()
-  if vim.v.count == 0 then
-    vim.cmd("normal! J")
-  else
-    vim.cmd("normal! " .. vim.v.count .. "J")
-  end
-  -- Remove the space that J adds
-  local line = vim.api.nvim_get_current_line()
-  local col = vim.fn.col('.')
-  if col > 1 and line:sub(col-1, col-1) == ' ' then
-    vim.cmd("normal! x")
-  end
-end, { desc = "Join lines without space" })
-
--- Enhanced folding
-keymap.set("n", "zR", "zR", { desc = "Open all folds" })
-keymap.set("n", "zM", "zM", { desc = "Close all folds" })
-keymap.set("n", "zr", "zr", { desc = "Open more folds" })
-keymap.set("n", "zm", "zm", { desc = "Close more folds" })
+-- NOTE: Folding operations (z commands) use Neovim standard behavior
 
 -- Tab management
 keymap.set("n", "<leader>tn", "<cmd>tabnew<cr>", { desc = "New Tab" })
@@ -196,22 +144,14 @@ keymap.set("n", "]t", "<cmd>tabnext<cr>", { desc = "Next Tab" })
 keymap.set("n", "<leader>tf", "<cmd>tabfirst<cr>", { desc = "First Tab" })
 keymap.set("n", "<leader>tl", "<cmd>tablast<cr>", { desc = "Last Tab" })
 
--- LSP keymaps (will be overridden by lsp-zero when available)
-keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to Definition" })
-keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Go to References" })
-keymap.set("n", "gI", vim.lsp.buf.implementation, { desc = "Go to Implementation" })
-keymap.set("n", "gy", vim.lsp.buf.type_definition, { desc = "Go to Type Definition" })
-keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to Declaration" })
-keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover" })
-keymap.set("n", "gK", vim.lsp.buf.signature_help, { desc = "Signature Help" })
-keymap.set("i", "<c-k>", vim.lsp.buf.signature_help, { desc = "Signature Help" })
+-- LSP keymaps (Plugin-specific, non-conflicting with standard Vim)
 keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
 keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Rename" })
-
--- Diagnostic keymaps
 keymap.set("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
 keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next Diagnostic" })
 keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Prev Diagnostic" })
+
+-- NOTE: Standard LSP mappings (gd, gr, gI, gy, gD, K, etc.) use Neovim/LSP defaults
 
 -- Terminal
 keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Enter Normal Mode" })
@@ -222,29 +162,12 @@ keymap.set("t", "<C-l>", "<cmd>wincmd l<cr>", { desc = "Go to right window" })
 keymap.set("t", "<C-/>", "<cmd>close<cr>", { desc = "Hide Terminal" })
 keymap.set("t", "<c-_>", "<cmd>close<cr>", { desc = "which_key_ignore" })
 
--- IDE-like commenting (requires tpope/vim-commentary or similar)
+-- Plugin-specific commenting (requires tpope/vim-commentary or similar)
 keymap.set("n", "<leader>/", "gcc", { desc = "Toggle comment", remap = true })
 keymap.set("v", "<leader>/", "gc", { desc = "Toggle comment", remap = true })
 
--- Quick macros
-keymap.set("n", "Q", "@q", { desc = "Execute macro q" })
-keymap.set("x", "Q", ":normal @q<CR>", { desc = "Execute macro q on selection" })
-
--- Enhanced visual mode
-keymap.set("x", "p", '"_dP', { desc = "Paste without yanking" })
-
--- URLs
-keymap.set("n", "gx", function()
-  local url = vim.fn.expand("<cfile>")
-  if url:match("^https?://") then
-    vim.fn.system("open " .. url)
-  else
-    vim.fn.system("open https://" .. url)
-  end
-end, { desc = "Open URL under cursor" })
-
--- Text objects for entire buffer
-keymap.set("o", "ae", ":<C-u>normal! ggVG<CR>", { desc = "Entire buffer" })
-keymap.set("x", "ae", ":<C-u>normal! ggVG<CR>", { desc = "Entire buffer" })
-keymap.set("o", "ie", ":<C-u>normal! ggVG<CR>", { desc = "Entire buffer" })
-keymap.set("x", "ie", ":<C-u>normal! ggVG<CR>", { desc = "Entire buffer" })
+-- NOTE: Standard Vim operations preserved:
+-- - Q (Ex mode) remains standard
+-- - p/P (paste) use standard behavior  
+-- - gx uses standard netrw behavior
+-- - Text objects (aw, iw, ap, ip, etc.) remain standard
