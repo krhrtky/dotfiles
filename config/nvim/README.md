@@ -15,6 +15,60 @@
 - **リーダーキー**: `<Space>` (スペース)
 - **ローカルリーダー**: `\` (バックスラッシュ)
 
+### IntelliJ IDEA キーマップサポート
+この設定にはIntelliJ IDEAスタイルのキーマップが組み込まれており、基本的なVim操作を保持しながらIDEライクな操作を可能にします。
+
+#### キーマップ切り替えコマンド
+```vim
+:IntellijKeymap    " IntelliJ IDEAキーマップに切り替え
+:DefaultKeymap     " デフォルトキーマップに戻す  
+:KeymapToggle      " キーマップを切り替え
+:KeymapStatus      " 現在のキーマップ状態を表示
+```
+
+#### IntelliJ主要ショートカット (ターミナル互換)
+```
+Ctrl+O          ファイルを開く
+Ctrl+Shift+O    文字列検索
+<leader>fr      最近使用したファイル
+Alt+1           プロジェクトツリー表示
+Ctrl+/          行コメント切り替え
+<leader>ld      行の複製
+Alt+↑/↓         行の移動
+<leader>gd      定義へジャンプ
+<leader>cu      使用箇所検索
+F1              クイックドキュメント
+<leader>ca      コードアクション
+F2              リネーム
+<leader>cf      コードフォーマット
+```
+
+#### 主要機能別ショートカット
+```
+# ファイル操作
+Ctrl+S          保存
+<leader>fn      新規ファイル
+<leader>bd      バッファ閉じる
+
+# 検索・ナビゲーション  
+<leader>ff      ファイル検索
+<leader>sg      文字列検索
+<leader>fs      ファイル構造
+<leader>ws      ワークスペースシンボル
+
+# デバッグ・実行
+F9              ビルド
+F5              デバッグ開始
+<leader>db      ブレークポイント切り替え
+F12             ターミナル
+
+# Git操作
+<leader>gk      Git操作メニュー
+<leader>gK      コミット
+```
+
+**注意**: 基本的なVim操作（hjkl, /, ?, n, N, i, a, o, d, y, p等）は保持されます。
+
 ---
 
 ## 📁 ファイル操作 & ナビゲーション
