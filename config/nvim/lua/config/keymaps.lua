@@ -166,6 +166,24 @@ keymap.set("t", "<c-_>", "<cmd>close<cr>", { desc = "which_key_ignore" })
 keymap.set("n", "<leader>/", "gcc", { desc = "Toggle comment", remap = true })
 keymap.set("v", "<leader>/", "gc", { desc = "Toggle comment", remap = true })
 
+-- Barbar keymaps
+keymap.set("n", "<leader>bp", "<cmd>BufferPick<cr>", { desc = "Pick Buffer" })
+keymap.set("n", "<leader>bc", "<cmd>BufferPickDelete<cr>", { desc = "Pick Close Buffer" })
+keymap.set("n", "<leader>bo", "<cmd>BufferCloseAllButCurrent<cr>", { desc = "Close Other Buffers" })
+keymap.set("n", "<leader>br", "<cmd>BufferCloseBuffersRight<cr>", { desc = "Close Buffers to Right" })
+keymap.set("n", "<leader>bl", "<cmd>BufferCloseBuffersLeft<cr>", { desc = "Close Buffers to Left" })
+keymap.set("n", "<S-h>", "<cmd>BufferPrevious<cr>", { desc = "Previous Buffer" })
+keymap.set("n", "<S-l>", "<cmd>BufferNext<cr>", { desc = "Next Buffer" })
+keymap.set("n", "<leader>1", "<cmd>BufferGoto 1<cr>", { desc = "Go to Buffer 1" })
+keymap.set("n", "<leader>2", "<cmd>BufferGoto 2<cr>", { desc = "Go to Buffer 2" })
+keymap.set("n", "<leader>3", "<cmd>BufferGoto 3<cr>", { desc = "Go to Buffer 3" })
+keymap.set("n", "<leader>4", "<cmd>BufferGoto 4<cr>", { desc = "Go to Buffer 4" })
+keymap.set("n", "<leader>5", "<cmd>BufferGoto 5<cr>", { desc = "Go to Buffer 5" })
+keymap.set("n", "<leader>6", "<cmd>BufferGoto 6<cr>", { desc = "Go to Buffer 6" })
+keymap.set("n", "<leader>7", "<cmd>BufferGoto 7<cr>", { desc = "Go to Buffer 7" })
+keymap.set("n", "<leader>8", "<cmd>BufferGoto 8<cr>", { desc = "Go to Buffer 8" })
+keymap.set("n", "<leader>9", "<cmd>BufferGoto 9<cr>", { desc = "Go to Buffer 9" })
+
 -- NOTE: Standard Vim operations preserved:
 -- - Q (Ex mode) remains standard
 -- - p/P (paste) use standard behavior  

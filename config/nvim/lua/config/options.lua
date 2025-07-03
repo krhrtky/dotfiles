@@ -21,6 +21,7 @@ opt.wrapscan = true
 opt.completeopt = "menuone"
 opt.backspace = "indent" , "eol", "start"
 opt.laststatus = 3
+opt.showtabline = 2
 
 local wo = vim.wo
 wo.list = true
