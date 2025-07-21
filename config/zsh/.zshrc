@@ -1,7 +1,5 @@
 # Amazon Q pre block. Keep at the top of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 #export ZPLUG_HOME=/usr/local/opt/zplug
 export ZPLUG_HOME=/opt/homebrew/opt/zplug
 source $ZPLUG_HOME/init.zsh
@@ -79,10 +77,10 @@ autoload -Uz vcs_info
 bindkey -v
 
 # alias
-alias ls='exa'
-alias lt='exa -lT'
-alias la='exa -alhBG'
-alias ll='exa -alhBG'
+alias ls='eza'
+alias lt='eza -lT'
+alias la='eza -alhBG'
+alias ll='eza -alhBG'
 #alias ls='ls -aF'
 #alias ll='ls -l'
 #alias rm='rm -i'
@@ -90,10 +88,10 @@ alias ll='exa -alhBG'
 #alias mv='mv -i'
 alias vi='nvim'
 alias view='nvim -R'
-alias cat='cat -n'
 alias less='less -NM'
 alias bd='cd ..'
 alias mkdir='mkdir -p'
+alias cuse='~/.local/bin/cu'
 export CLICOLOR=1
 export LSCOLORS=DxGxcxdxCxegedabagacad
 
@@ -130,8 +128,7 @@ eval "$(starship init zsh)"
 
 eval "$(mise activate zsh)"
 
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
-
 # Amazon Q post block. Keep at the bottom of this file.
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
