@@ -1,0 +1,162 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WorkflowState",
+  "description": "マルチエージェントワークフロー（SDA → DA → QGA）の状態管理スキーマ",
+  "type": "object",
+  "required": [
+    "id",
+    "request",
+    "current_phase",
+    "iteration",
+    "phase_history",
+    "blocker_history",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "ワークフローの一意識別子（UUID形式推奨）",
+      "pattern": "^[a-zA-Z0-9-_]+$"
+    },
+    "request": {
+      "type": "string",
+      "description": "ワークフローを開始したユーザーリクエスト"
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": ["INIT", "SDA", "DA", "QGA", "COMPLETE", "ESCALATED"],
+      "description": "現在のワークフローフェーズ"
+    },
+    "iteration": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "現在のリトライ回数（エスカレーション前の最大は3）"
+    },
+    "phase_history": {
+      "type": "array",
+      "description": "全フェーズ実行の履歴",
+      "items": {
+        "$ref": "#/definitions/PhaseResult"
+      }
+    },
+    "blocker_history": {
+      "type": "array",
+      "description": "検出された全ブロッカーの履歴",
+      "items": {
+        "$ref": "#/definitions/BlockerIssue"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ワークフロー作成タイムスタンプ（ISO 8601）"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最終更新タイムスタンプ（ISO 8601）"
+    }
+  },
+  "definitions": {
+    "PhaseResult": {
+      "type": "object",
+      "required": ["phase", "iteration", "timestamp", "status"],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": ["SDA", "DA", "QGA"]
+        },
+        "iteration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["SUCCESS", "RETURNED", "ESCALATED"]
+        },
+        "return_reason": {
+          "type": "string",
+          "description": "前フェーズへの返却理由"
+        },
+        "return_to": {
+          "type": "string",
+          "enum": ["SDA", "DA"],
+          "description": "返却先フェーズ"
+        },
+        "blocker_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "このフェーズで検出されたブロッカーのID"
+        },
+        "output_summary": {
+          "type": "string",
+          "description": "フェーズ出力の概要"
+        }
+      }
+    },
+    "BlockerIssue": {
+      "type": "object",
+      "required": [
+        "id",
+        "category",
+        "severity",
+        "description",
+        "first_detected",
+        "occurrences",
+        "resolved"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ブロッカーの一意識別子（例: BLOCKER-001）"
+        },
+        "category": {
+          "type": "string",
+          "description": "ブロッカーのカテゴリ（例: Security, Test, Coverage）"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["BLOCKER", "MAJOR", "MINOR"]
+        },
+        "description": {
+          "type": "string",
+          "description": "問題の説明"
+        },
+        "file": {
+          "type": "string",
+          "description": "問題が検出されたファイルパス"
+        },
+        "line": {
+          "type": "integer",
+          "description": "問題が検出された行番号"
+        },
+        "first_detected": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最初に検出された日時"
+        },
+        "occurrences": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "このブロッカーが検出された回数"
+        },
+        "resolved": {
+          "type": "boolean",
+          "description": "このブロッカーが解決されたかどうか"
+        },
+        "resolution_iteration": {
+          "type": "integer",
+          "description": "解決されたイテレーション"
+        }
+      }
+    }
+  }
+}
