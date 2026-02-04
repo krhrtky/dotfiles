@@ -11,6 +11,8 @@ return {
     opts = {
       servers = {
         kotlin_lsp = {},
+        -- NOTE: この設定は将来的に code.lua から参照される予定
+        -- 現在は code.lua の kotlin_lsp handler で直接設定されている
       },
     },
   },

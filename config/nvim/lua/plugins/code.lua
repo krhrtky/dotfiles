@@ -73,7 +73,7 @@ return {
       end)
 
       require('mason-lspconfig').setup({
-        ensure_installed = {},
+        ensure_installed = { 'kotlin-lsp' },
         handlers = {
           -- this first function is the "default handler"
           -- it applies to every language server without a "custom handler"
@@ -86,6 +86,21 @@ return {
             -- (Optional) Configure lua language server for neovim
             local lua_opts = lsp_zero.nvim_lua_ls()
             require('lspconfig').lua_ls.setup(lua_opts)
+          end,
+
+          -- custom handler for kotlin_lsp
+          kotlin_lsp = function()
+            require('lspconfig').kotlin_lsp.setup({
+              cmd = { 'kotlin-lsp' },
+              root_dir = require('lspconfig').util.root_pattern(
+                'settings.gradle',
+                'settings.gradle.kts',
+                'build.gradle',
+                'build.gradle.kts',
+                'pom.xml',
+                '.git'
+              ),
+            })
           end,
         }
       })
@@ -108,7 +123,7 @@ return {
       { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent Files" },
       { "<leader>fb", "<cmd>Telescope file_browser<cr>", desc = "File Browser" },
       { "<leader>fB", "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", desc = "File Browser (current dir)" },
-      
+
       -- Search operations  
       { "<leader>sg", "<cmd>Telescope live_grep<cr>", desc = "Live Grep" },
       { "<leader>sG", "<cmd>Telescope live_grep_args<cr>", desc = "Live Grep with Args" },
@@ -119,17 +134,17 @@ return {
       { "<leader>sm", "<cmd>Telescope man_pages<cr>", desc = "Man Pages" },
       { "<leader>sk", "<cmd>Telescope keymaps<cr>", desc = "Keymaps" },
       { "<leader>ss", "<cmd>Telescope builtin<cr>", desc = "Select Telescope" },
-      
+
       -- Buffer operations
       { "<leader>,", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Switch Buffer" },
       { "<leader>;", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
-      
+
       -- Git operations
       { "<leader>gc", "<cmd>Telescope git_commits<cr>", desc = "Git Commits" },
       { "<leader>gb", "<cmd>Telescope git_branches<cr>", desc = "Git Branches" },
       { "<leader>gs", "<cmd>Telescope git_status<cr>", desc = "Git Status" },
       { "<leader>gf", "<cmd>Telescope git_files<cr>", desc = "Git Files" },
-      
+
       -- LSP operations
       { "<leader>lr", "<cmd>Telescope lsp_references<cr>", desc = "LSP References" },
       { "<leader>ld", "<cmd>Telescope lsp_definitions<cr>", desc = "LSP Definitions" },
@@ -137,13 +152,13 @@ return {
       { "<leader>lt", "<cmd>Telescope lsp_type_definitions<cr>", desc = "LSP Type Definitions" },
       { "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document Symbols" },
       { "<leader>lS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace Symbols" },
-      
+
       -- Project management
       { "<leader>pp", "<cmd>Telescope projects<cr>", desc = "Switch Project" },
-      
+
       -- Plugin files
       { "<leader>fp", function() require("telescope.builtin").find_files({ cwd = require("lazy.core.config").options.root }) end, desc = "Find Plugin File" },
-      
+
       -- Resume last search
       { "<leader>sr", "<cmd>Telescope resume<cr>", desc = "Resume Last Search" },
     },
@@ -151,7 +166,7 @@ return {
       local telescope = require('telescope')
       local actions = require('telescope.actions')
       local action_state = require('telescope.actions.state')
-      
+
       telescope.setup({
         defaults = {
           prompt_prefix = " ",
@@ -331,7 +346,7 @@ return {
           },
         },
       })
-      
+
       -- Load extensions
       telescope.load_extension('fzf')
       telescope.load_extension('projects')
@@ -441,7 +456,6 @@ return {
     -- use opts = {} for passing setup options
     -- this is equalent to setup({}) function
   },
-  
   -- Debug Adapter Protocol (DAP)
   {
     'mfussenegger/nvim-dap',
@@ -463,13 +477,13 @@ return {
     config = function()
       local dap = require('dap')
       local dapui = require('dapui')
-      
+
       -- Setup dap-ui
       dapui.setup()
-      
+
       -- Setup virtual text
       require('nvim-dap-virtual-text').setup()
-      
+
       -- Auto-open/close dapui
       dap.listeners.after.event_initialized['dapui_config'] = function()
         dapui.open()
@@ -480,11 +494,11 @@ return {
       dap.listeners.before.event_exited['dapui_config'] = function()
         dapui.close()
       end
-      
+
       -- Language-specific debug configurations will be handled in language files
     end,
   },
-  
+
   -- Project Management
   {
     'ahmedkhalf/project.nvim',
@@ -501,7 +515,7 @@ return {
       })
     end,
   },
-  
+
   -- Test Framework
   {
     'nvim-neotest/neotest',
@@ -545,4 +559,52 @@ return {
       })
     end,
   },
+  {
+    "olimorris/codecompanion.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("codecompanion").setup({
+        adapters = {
+          -- Claude Code (ACP) アダプターの設定
+          claude_code = function()
+            return require("codecompanion.adapters").extend("claude_code", {
+              -- 必要に応じて環境変数を追加
+              env = {
+                -- api_key は通常 claude login で管理されるため、ここでは省略可能
+                CLAUDE_CODE_OAUTH_TOKEN = "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",
+              },
+            })
+          end,
+        },
+        strategies = {
+          -- 通常のチャットは通常の Anthropic API でも良いですが、
+          -- ツール実行を行いたい「エージェント」には claude_code を指定します。
+          chat = {
+            adapter = "claude_code",
+          },
+          inline = {
+            adapter = "claude_code",
+          },
+          agent = {
+            adapter = "claude_code",
+          },
+        },
+        -- エージェントの挙動を許可するための設定
+        display = {
+          action_palette = {
+            provider = "telescope", -- または "default"
+          },
+        },
+        -- エージェントがツールを実行する前に承認を求める設定（推奨）
+        opts = {
+          send_code = true,
+          use_default_actions = true,
+          use_default_prompts = true,
+        },
+      })
+    end,
+  }
 }
