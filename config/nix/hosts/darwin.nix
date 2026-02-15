@@ -3,6 +3,10 @@
 
   security.pam.services.sudo_local.touchIdAuth = true;
 
+  security.sudo.extraConfig = ''
+    ${username} ALL=(ALL:ALL) NOPASSWD: /run/current-system/sw/bin/darwin-rebuild
+  '';
+
   users.users.${username} = {
     home = homeDirectory;
     shell = pkgs.zsh;
