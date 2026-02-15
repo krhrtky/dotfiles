@@ -17,10 +17,24 @@
 
   outputs = { self, nixpkgs, nix-darwin, home-manager, ... }:
   let
-    username = "takuya.kurihara";
+    username =
+      let
+        sudoUser = builtins.getEnv "SUDO_USER";
+        user = builtins.getEnv "USER";
+      in
+        if sudoUser != "" then sudoUser
+        else if user != "" then user
+        else abort "Could not determine username. Run with --impure flag.";
     homeDirectory = "/Users/${username}";
     dotfilesDir = "${homeDirectory}/dotfiles";
-    hostname = "takuyakuriharanoMac-mini";
+    hostname =
+      let
+        h = builtins.getEnv "HOST";
+        hn = builtins.getEnv "HOSTNAME";
+      in
+        if h != "" then h
+        else if hn != "" then hn
+        else abort "Could not determine hostname. Pass HOST env var: sudo HOST=$(scutil --get LocalHostName) darwin-rebuild switch --impure --flake .";
   in {
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
