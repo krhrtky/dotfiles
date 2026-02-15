@@ -32,15 +32,13 @@ for f in /etc/bashrc /etc/zshenv; do
   fi
 done
 
-SUDO_ENV="HOST=$(scutil --get LocalHostName)"
-
 if ! command -v darwin-rebuild >/dev/null 2>&1; then
-  echo "[info] Initial nix-darwin build (requires sudo for system activation)..."
-  sudo $SUDO_ENV nix run nix-darwin --extra-experimental-features "nix-command flakes" \
+  echo "[info] Initial nix-darwin build (sudo will be requested for system activation)..."
+  nix run nix-darwin --extra-experimental-features "nix-command flakes" \
     -- switch --impure --flake "$NIX_DIR"
 else
   echo "[info] Rebuilding nix-darwin configuration..."
-  sudo $SUDO_ENV darwin-rebuild switch --impure --flake "$NIX_DIR"
+  darwin-rebuild switch --impure --flake "$NIX_DIR"
 fi
 
 echo "[info] === Setup Complete ==="
