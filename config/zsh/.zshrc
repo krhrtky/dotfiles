@@ -1,5 +1,5 @@
-# Amazon Q pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 #export ZPLUG_HOME=/usr/local/opt/zplug
 export ZPLUG_HOME=/opt/homebrew/opt/zplug
 source $ZPLUG_HOME/init.zsh
@@ -124,11 +124,21 @@ eval "$(direnv hook zsh)"
 # uninstall by removing these lines or running `tabtab uninstall slss`
 [[ -f /Users/takuya.kurihara/.npm/_npx/53486/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zsh ]] && . /Users/takuya.kurihara/.npm/_npx/53486/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.zshexport PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
 
-eval "$(starship init zsh)"
+type starship_zle-keymap-select >/dev/null || \
+  {
+    eval "$(starship init zsh)"
+  }
 
-eval "$(mise activate zsh)"
-
-# Amazon Q post block. Keep at the bottom of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
+command -v mise >/dev/null && eval "$(mise activate zsh)"
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+
+export EDITOR="nvim"
+
+# Added by Antigravity
+export PATH="/Users/takuya.kurihara/.antigravity/antigravity/bin:$PATH"
+source ~/.codex-completion.zsh
+source ~/.codex-completion.zsh
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
