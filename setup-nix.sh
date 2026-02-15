@@ -21,7 +21,7 @@ echo "[info] Nix is available: $(nix --version)"
   cd "$NIX_DIR"
   if ! git ls-files --error-unmatch flake.nix >/dev/null 2>&1; then
     echo "[info] Adding Nix config files to git tracking..."
-    git add flake.nix flake.lock hosts/ home/ homebrew.nix
+    git add flake.nix flake.lock hosts/ home/ homebrew/
   fi
 )
 

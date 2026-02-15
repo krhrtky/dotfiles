@@ -1,6 +1,6 @@
 { pkgs, lib, username, homeDirectory, ... }: {
   imports = [
-    ./packages.nix
+    ./packages/common.nix
     ./symlinks.nix
   ];
 
