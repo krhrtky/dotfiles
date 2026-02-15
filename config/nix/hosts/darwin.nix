@@ -1,10 +1,10 @@
-{ pkgs, ... }: {
+{ pkgs, username, homeDirectory, ... }: {
   nix.enable = false;
 
   security.pam.services.sudo_local.touchIdAuth = true;
 
-  users.users."takuya.kurihara" = {
-    home = "/Users/takuya.kurihara";
+  users.users.${username} = {
+    home = homeDirectory;
     shell = pkgs.zsh;
   };
 
@@ -12,6 +12,6 @@
 
   nixpkgs.hostPlatform = "aarch64-darwin";
 
-  system.primaryUser = "takuya.kurihara";
+  system.primaryUser = username;
   system.stateVersion = 5;
 }

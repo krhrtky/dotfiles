@@ -1,7 +1,4 @@
-{ config, lib, ... }:
-let
-  dotfilesDir = "/Users/takuya.kurihara/dotfiles";
-in {
+{ config, lib, dotfilesDir, ... }: {
   home.file.".zshrc".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfilesDir}/config/zsh/.zshrc";
 

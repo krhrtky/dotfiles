@@ -1,5 +1,5 @@
 {
-  description = "takuya.kurihara's macOS dotfiles";
+  description = "macOS dotfiles managed by nix-darwin + home-manager";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -15,9 +15,16 @@
     };
   };
 
-  outputs = { self, nixpkgs, nix-darwin, home-manager, ... }: {
-    darwinConfigurations."takuyakuriharanoMac-mini" = nix-darwin.lib.darwinSystem {
+  outputs = { self, nixpkgs, nix-darwin, home-manager, ... }:
+  let
+    username = "takuya.kurihara";
+    homeDirectory = "/Users/${username}";
+    dotfilesDir = "${homeDirectory}/dotfiles";
+    hostname = "takuyakuriharanoMac-mini";
+  in {
+    darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
       system = "aarch64-darwin";
+      specialArgs = { inherit username homeDirectory dotfilesDir; };
       modules = [
         ./hosts/darwin.nix
         ./homebrew.nix
@@ -25,7 +32,8 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users."takuya.kurihara" = import ./home;
+          home-manager.extraSpecialArgs = { inherit username homeDirectory dotfilesDir; };
+          home-manager.users.${username} = import ./home;
         }
       ];
     };
