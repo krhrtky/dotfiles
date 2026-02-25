@@ -132,3 +132,7 @@ eval "$(mise activate zsh)"
 [[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+
+
+# --- local overrides (machine / org specific) ---
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
