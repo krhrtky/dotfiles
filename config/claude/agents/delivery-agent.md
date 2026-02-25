@@ -48,6 +48,13 @@ tools: Task, Read, Edit, Bash, Grep, Glob
 - [ ] 型チェック成功
 - [ ] 秘密情報チェック（環境変数のみ使用）
 
+#### セキュリティ
+
+- [ ] 入力バリデーション（外部入力すべてにバリデーション実装済み）
+- [ ] インジェクション対策（パラメータバインド使用、文字列結合クエリなし）
+- [ ] 機密情報ログ出力なし（ログに PII/パスワード/トークンが含まれない）
+- [ ] 認証認可チェック（必要な箇所にアクセス制御実装済み）
+
 #### テスト品質
 
 - [ ] 全テスト成功
@@ -115,6 +122,12 @@ Self-Review Checklist:
     lint_passed: true
     type_check_passed: true
     no_secrets: true
+
+  security_check:
+    input_validation: true
+    no_injection_risk: true
+    no_sensitive_logging: true
+    auth_check_complete: true
 
   test_quality:
     all_tests_pass: true

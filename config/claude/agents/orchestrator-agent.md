@@ -29,6 +29,21 @@ interface WorkflowState {
     perspective_analyses: PerspectiveAnalysis[];
     planning_decision: PlanningDecision;
     acceptance_criteria: AcceptanceCriterion[];
+    analysis_quality?: Record<string, {
+      meets_criteria: boolean;
+      retried: boolean;
+      warning?: string;
+    }>;
+    ac_testability_check?: {
+      checked_at: string;
+      results: {
+        ac_id: string;
+        testable: boolean;
+        issues: string[];
+      }[];
+      overall: "PASS" | "WARNING";
+      retried: boolean;
+    };
   };
   decision_log: DecisionLogEntry[];
   traceability?: {
@@ -126,9 +141,30 @@ Task(planning-perspective-agent, perspective: "security", request: $request)
 ```
 
 4つの分析結果を受け取ったら:
-1. `planning_context.perspective_analyses` に保存
-2. `phase_history` に PLANNING 完了を記録
-3. `current_phase` を `PDA` に更新
+
+1. **分析品質チェック（シフトレフト）**: 各分析結果が最低品質基準を満たすか検証
+   - `concerns` が 1 件以上あるか
+   - `acceptance_criteria_suggestions` が 1 件以上あるか
+   - `request_understanding` がリクエスト内容を具体的に反映しているか
+
+2. **基準未達の場合**:
+   - 該当観点の再分析を **1 回のみ** 実行（同一プロンプトで再呼び出し）
+   - 再分析後も基準未達の場合は WARNING として記録し、PDA へ続行
+
+3. `planning_context.perspective_analyses` に保存
+4. `planning_context.analysis_quality` に品質チェック結果を記録:
+   ```json
+   {
+     "analysis_quality": {
+       "technical": { "meets_criteria": true, "retried": false },
+       "ux-dx": { "meets_criteria": true, "retried": false },
+       "operations": { "meets_criteria": false, "retried": true, "warning": "concerns が 0 件" },
+       "security": { "meets_criteria": true, "retried": false }
+     }
+   }
+   ```
+5. `phase_history` に PLANNING 完了を記録
+6. `current_phase` を `PDA` に更新
 
 #### Agent Teams モード
 
@@ -184,8 +220,13 @@ Task(planning-perspective-agent,
 # 5. 全員の分析結果を収集
 # 各チームメンバーから YAML 形式の分析結果 + message_log が得られる
 
-# 6. 結果を状態に保存
+# 6. 結果を状態に保存（品質チェック付き）
+# 各分析結果の品質チェック:
+# - concerns >= 1、acceptance_criteria_suggestions >= 1 を確認
+# - Agent Teams モードでは再分析不要（議論済み）。基準未達は WARNING 記録のみ
+
 planning_context.perspective_analyses = [4つの分析結果]
+planning_context.analysis_quality = { ... }  # 品質チェック結果
 planning_context.team_context = {
   team_id: "planning-team-{workflow_id}",
   members: [4つのメンバー情報],
@@ -226,8 +267,34 @@ PDA の出力を受け取ったら:
 1. `planning_context.planning_decision` に保存
 2. `planning_context.acceptance_criteria` に確定した受け入れ条件を保存
 3. `decision_log` に主要な意思決定を記録
-4. `phase_history` に PDA 完了を記録
-5. `current_phase` を `SDA` に更新
+
+4. **AC テスタビリティチェック（シフトレフト）**: 確定した AC が検証可能か即時検証
+   - 検証基準は `issue-validation` スキルの「AC テスタビリティ検証基準」を参照
+   - 各 AC の `given`/`when`/`then` に具体的な値が含まれるか
+   - `verification_method` が実行可能な手段か（「確認する」等の曖昧表現でないか）
+   - `then` に曖昧な形容詞（正しく、適切に、十分に等）が含まれていないか
+
+5. **チェック不合格の場合**:
+   - 不合格 AC のリストとフィードバックを添えて PDA を **1 回のみ** 再実行
+   - 再実行後も不合格の場合は WARNING として記録し、SDA へ続行
+
+6. `planning_context.ac_testability_check` に結果を記録:
+   ```json
+   {
+     "ac_testability_check": {
+       "checked_at": "2026-02-26T10:00:00Z",
+       "results": [
+         { "ac_id": "AC-001", "testable": true, "issues": [] },
+         { "ac_id": "AC-002", "testable": false, "issues": ["then に '適切に' を含む"] }
+       ],
+       "overall": "WARNING",
+       "retried": true
+     }
+   }
+   ```
+
+7. `phase_history` に PDA 完了を記録
+8. `current_phase` を `SDA` に更新
 
 ### SDA/DA/QGA フェーズ
 

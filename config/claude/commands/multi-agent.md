@@ -143,7 +143,57 @@ flowchart TB
 
 ## 実行手順
 
-### Step 1: ワークフロー状態の初期化/再開
+### Step 1a: インプット品質チェック（シフトレフト）
+
+`$ARGUMENTS` に対して `issue-validation` スキルの品質基準を適用し、要求の品質を早期検証する:
+
+#### チェック項目
+
+1. **What（実現したいこと）**: 具体的な機能や振る舞いが記述されているか
+2. **Why（なぜ必要か）**: ビジネス価値やユーザーへの影響が記述されているか
+3. **受入条件**: 存在する場合、以下を検証
+   - Given-When-Then 形式で記述されているか
+   - 曖昧な形容詞（正しく、適切に、十分に等）が含まれていないか
+   - 自動テストに変換可能な具体性があるか
+4. **スコープ外**: 対応しないことが明示されているか
+
+#### 判定と対応
+
+チェック結果を `workflow-state.json` の `input_quality_check` に記録:
+
+```json
+{
+  "input_quality_check": {
+    "has_what": true,
+    "has_why": false,
+    "has_acceptance_criteria": true,
+    "ac_quality": "GOOD | NEEDS_IMPROVEMENT | MISSING",
+    "has_scope_exclusion": false,
+    "overall": "PASS | WARNING | NEEDS_INPUT"
+  }
+}
+```
+
+| overall | 条件 | 対応 |
+|---------|------|------|
+| PASS | What + Why + AC(GOOD) が揃っている | そのまま Step 1b に進行 |
+| WARNING | What はあるが Why または AC が不足 | 注意を表示し続行。PDA に不足項目の補完責務を明示 |
+| NEEDS_INPUT | What が不明確 | ユーザーに不足項目を提示し、追加入力を要求 |
+
+**NEEDS_INPUT 時の出力例**:
+```markdown
+⚠️ インプット品質チェック: 追加情報が必要です
+
+不足項目:
+- What: 実現したい機能の具体的な説明が必要です
+- Why: なぜこの変更が必要かの説明がありません
+
+以下を補足してください:
+1. 具体的に何を実現したいですか？
+2. なぜこの変更が必要ですか？（ビジネス価値/ユーザー影響）
+```
+
+### Step 1b: ワークフロー状態の初期化/再開
 
 `.claude/workflow-state.json` を確認し、状態を管理:
 
@@ -159,6 +209,7 @@ cat .claude/workflow-state.json 2>/dev/null || echo "新規ワークフロー開
   "request": "$ARGUMENTS",
   "current_phase": "INIT",
   "iteration": 0,
+  "input_quality_check": {},
   "planning_context": {
     "perspective_analyses": [],
     "planning_decision": null,
@@ -209,6 +260,12 @@ Task(planning-perspective-agent, perspective: "security", ...)
   - trade_offs_accepted: 受容したトレードオフ
   - acceptance_criteria: 確定した受け入れ条件
   - decision_log: 意思決定の記録
+
+##### PDA フェーズへの追加コンテキスト
+
+`input_quality_check.overall` が `WARNING` の場合、PDA に以下を伝達:
+- 不足している要素（Why、受入条件等）を PDA の意思決定プロセスで補完すること
+- 補完した内容を `decision_log` に記録すること
 
 完了後: `current_phase` を `SDA` に更新
 

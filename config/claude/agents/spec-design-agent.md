@@ -65,7 +65,34 @@ tools: Task, Read, Grep, Glob, Bash
 
 - [ ] セキュリティ要件（認証・認可・入力検証）
 - [ ] パフォーマンス要件（レスポンス時間・スループット）
-- [ ] 運用要件（ログ、監査、バックアップ）
+- [ ] 運用性設計（該当する項目を記載。不要な項目は「該当なし」と明示）
+  - [ ] ログ設計: 出力対象イベント、ログレベル、構造化ログのフィールド定義
+  - [ ] メトリクス設計: 収集する指標名と閾値（該当する場合）
+  - [ ] アラート条件: トリガー条件と通知先（該当する場合）
+  - [ ] デプロイ戦略: デプロイ方式と前提条件（該当する場合）
+  - [ ] ロールバック手順: トリガー条件と手順（該当する場合）
+
+##### 運用性設計の記述フォーマット
+
+```yaml
+Operability Design:
+  logging:
+    events:
+      - event: "ユーザーログイン成功"
+        level: "INFO"
+        fields: ["user_id", "timestamp", "ip_address"]
+      - event: "認証失敗"
+        level: "WARN"
+        fields: ["attempted_email", "timestamp", "failure_reason"]
+  metrics: "該当なし"
+  alerts: "該当なし"
+  deployment:
+    strategy: "rolling"
+    preconditions: ["マイグレーション適用済み", "全テスト通過"]
+  rollback:
+    trigger: "エラーレート 5% 超過 for 3min"
+    procedure: "前バージョンへのローリングデプロイ"
+```
 
 #### 5. テスト要件
 
@@ -73,6 +100,46 @@ tools: Task, Read, Grep, Glob, Bash
 - [ ] 境界ケース定義（3+件）
 - [ ] エラーケース定義（2+件）
 - [ ] セキュリティテストケース（該当する場合）
+- [ ] テスト戦略（テストピラミッドの層別配置）
+- [ ] AC 対応テストケース設計（DA が TDD Red フェーズで直接使用）
+
+##### テスト戦略の記述フォーマット
+
+```yaml
+Test Strategy:
+  unit:
+    target: "ドメインロジック、バリデーション、計算処理"
+    estimated_count: N
+  integration:
+    target: "リポジトリ、外部サービス連携、API層"
+    estimated_count: M
+  e2e:
+    target: "ユーザーフロー全体の検証（該当する場合）"
+    estimated_count: K
+```
+
+##### AC 対応テストケース設計
+
+各 AC に対して、DA が TDD Red フェーズの入力として使えるテストケースを設計する。`input` と `expected` には必ず具体的な値を記載すること:
+
+```yaml
+Test Cases:
+  - ac_id: "AC-001"
+    test_layer: "unit"
+    test_name: "注文金額が1000円以上のとき送料が0円になる"
+    input:
+      order_amount: 1000
+    expected:
+      shipping_fee: 0
+
+  - ac_id: "AC-001"
+    test_layer: "unit"
+    test_name: "注文金額が999円のとき送料が500円になる"
+    input:
+      order_amount: 999
+    expected:
+      shipping_fee: 500
+```
 
 ### 受け入れ条件の記述ルール
 
