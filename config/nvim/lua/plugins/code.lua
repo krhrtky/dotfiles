@@ -73,7 +73,7 @@ return {
       end)
 
       require('mason-lspconfig').setup({
-        ensure_installed = { 'kotlin-lsp' },
+        ensure_installed = { 'kotlin-language-server' },
         handlers = {
           -- this first function is the "default handler"
           -- it applies to every language server without a "custom handler"
