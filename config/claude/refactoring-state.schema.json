@@ -1,0 +1,481 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RefactoringState",
+  "description": "リファクタリングワークフロー（分析 → 計画 → 実行 → 検証）の状態管理スキーマ",
+  "type": "object",
+  "required": [
+    "id",
+    "request",
+    "current_phase",
+    "iteration",
+    "phase_history",
+    "blocker_history",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "ワークフローの一意識別子（refactor-{timestamp}形式）",
+      "pattern": "^refactor-[0-9]+$"
+    },
+    "request": {
+      "type": "string",
+      "description": "ユーザーからのリファクタリングリクエスト"
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": ["INIT", "ANALYSIS", "EXECUTION", "COMPLETE", "ESCALATED"],
+      "description": "現在のワークフローフェーズ"
+    },
+    "iteration": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "description": "現在のリトライ回数（エスカレーション前の最大は3）"
+    },
+    "execution_mode": {
+      "type": "string",
+      "enum": ["SEQUENTIAL", "PARALLEL"],
+      "description": "実行モード（逐次または並列）",
+      "default": "SEQUENTIAL"
+    },
+    "scope": {
+      "type": "object",
+      "description": "リファクタリング対象スコープ",
+      "properties": {
+        "target_files": {
+          "type": "array",
+          "description": "直接変更対象のファイル",
+          "items": { "type": "string" }
+        },
+        "affected_files": {
+          "type": "array",
+          "description": "影響を受けるファイル（依存関係）",
+          "items": { "type": "string" }
+        },
+        "test_files": {
+          "type": "array",
+          "description": "関連するテストファイル",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "smells_detected": {
+      "type": "array",
+      "description": "検出されたコードスメル",
+      "items": {
+        "$ref": "#/definitions/CodeSmell"
+      }
+    },
+    "refactoring_plan": {
+      "type": "array",
+      "description": "リファクタリング計画",
+      "items": {
+        "$ref": "#/definitions/RefactoringItem"
+      }
+    },
+    "execution_log": {
+      "type": "array",
+      "description": "実行ログ",
+      "items": {
+        "$ref": "#/definitions/ExecutionLogEntry"
+      }
+    },
+    "execution_batches": {
+      "type": "array",
+      "description": "並列実行バッチ情報",
+      "items": {
+        "$ref": "#/definitions/ExecutionBatch"
+      }
+    },
+    "phase_history": {
+      "type": "array",
+      "description": "フェーズ実行履歴",
+      "items": {
+        "$ref": "#/definitions/PhaseResult"
+      }
+    },
+    "blocker_history": {
+      "type": "array",
+      "description": "検出されたブロッカー履歴",
+      "items": {
+        "$ref": "#/definitions/BlockerIssue"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ワークフロー作成タイムスタンプ（ISO 8601）"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最終更新タイムスタンプ（ISO 8601）"
+    }
+  },
+  "definitions": {
+    "CodeSmell": {
+      "type": "object",
+      "description": "検出されたコードスメル",
+      "required": ["id", "type", "file", "severity", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "スメルID（SMELL-001形式）"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "long_function",
+            "large_class",
+            "duplicated_code",
+            "complex_conditional",
+            "long_parameter_list",
+            "magic_numbers",
+            "dead_code",
+            "unclear_naming",
+            "primitive_obsession",
+            "defensive_validation",
+            "mutable_state",
+            "invalid_state_possible",
+            "missing_domain_type",
+            "stringly_typed",
+            "aliasing_risk"
+          ],
+          "description": "スメルの種類（従来 + 予防的設計）"
+        },
+        "file": {
+          "type": "string",
+          "description": "検出されたファイルパス"
+        },
+        "location": {
+          "type": "object",
+          "description": "コード内の位置",
+          "properties": {
+            "start_line": { "type": "integer" },
+            "end_line": { "type": "integer" },
+            "function_name": { "type": "string" },
+            "class_name": { "type": "string" }
+          }
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"],
+          "description": "重要度"
+        },
+        "description": {
+          "type": "string",
+          "description": "スメルの説明"
+        },
+        "metrics": {
+          "type": "object",
+          "description": "関連メトリクス",
+          "properties": {
+            "lines": { "type": "integer" },
+            "cyclomatic_complexity": { "type": "integer" },
+            "parameters": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "RefactoringItem": {
+      "type": "object",
+      "description": "リファクタリング計画項目",
+      "required": ["id", "type", "target_file", "description", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "リファクタリングID（REF-001形式）"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "extract_function",
+            "extract_variable",
+            "extract_class",
+            "extract_interface",
+            "inline_function",
+            "inline_variable",
+            "move_function",
+            "move_field",
+            "rename_variable",
+            "rename_function",
+            "rename_parameter",
+            "rename_class",
+            "simplify_conditional",
+            "replace_nested_with_guard",
+            "decompose_conditional",
+            "remove_dead_code",
+            "introduce_value_object",
+            "replace_validation_with_type",
+            "make_immutable",
+            "make_illegal_states_unrepresentable",
+            "introduce_domain_object",
+            "replace_string_with_enum",
+            "introduce_immutable_copy",
+            "introduce_factory_method",
+            "introduce_smart_constructor"
+          ],
+          "description": "リファクタリングの種類（従来 + 予防的設計）"
+        },
+        "target_smell": {
+          "type": "string",
+          "description": "対象のスメルID"
+        },
+        "target_file": {
+          "type": "string",
+          "description": "対象ファイルパス"
+        },
+        "description": {
+          "type": "string",
+          "description": "リファクタリング内容の説明"
+        },
+        "expected_effect": {
+          "type": "string",
+          "description": "期待される効果"
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "依存するリファクタリングID",
+          "items": { "type": "string" }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "IN_PROGRESS", "COMPLETED", "FAILED", "SKIPPED"],
+          "description": "実行状態"
+        },
+        "order": {
+          "type": "integer",
+          "description": "実行順序"
+        }
+      }
+    },
+    "ExecutionLogEntry": {
+      "type": "object",
+      "description": "実行ログエントリ",
+      "required": ["refactoring_id", "timestamp", "status"],
+      "properties": {
+        "refactoring_id": {
+          "type": "string",
+          "description": "実行したリファクタリングID"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "実行タイムスタンプ"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["SUCCESS", "FAILED", "ROLLED_BACK"],
+          "description": "実行結果"
+        },
+        "changes_made": {
+          "type": "array",
+          "description": "行われた変更",
+          "items": {
+            "type": "object",
+            "properties": {
+              "file": { "type": "string" },
+              "action": { "type": "string", "enum": ["created", "modified", "deleted"] },
+              "lines_added": { "type": "integer" },
+              "lines_removed": { "type": "integer" }
+            }
+          }
+        },
+        "verification": {
+          "$ref": "#/definitions/VerificationResult"
+        },
+        "error_message": {
+          "type": "string",
+          "description": "失敗時のエラーメッセージ"
+        },
+        "rollback_reason": {
+          "type": "string",
+          "description": "ロールバック理由"
+        }
+      }
+    },
+    "VerificationResult": {
+      "type": "object",
+      "description": "検証結果",
+      "properties": {
+        "tests": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["PASS", "FAIL", "SKIPPED"] },
+            "passed": { "type": "integer" },
+            "failed": { "type": "integer" },
+            "skipped": { "type": "integer" },
+            "output": { "type": "string" }
+          }
+        },
+        "lint": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["PASS", "FAIL", "SKIPPED"] },
+            "errors": { "type": "integer" },
+            "warnings": { "type": "integer" },
+            "output": { "type": "string" }
+          }
+        },
+        "type_check": {
+          "type": "object",
+          "properties": {
+            "status": { "type": "string", "enum": ["PASS", "FAIL", "SKIPPED"] },
+            "errors": { "type": "integer" },
+            "output": { "type": "string" }
+          }
+        },
+        "overall_status": {
+          "type": "string",
+          "enum": ["PASS", "FAIL"],
+          "description": "総合判定"
+        }
+      }
+    },
+    "PhaseResult": {
+      "type": "object",
+      "description": "フェーズ実行結果",
+      "required": ["phase", "iteration", "timestamp", "status"],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": ["ANALYSIS", "EXECUTION"]
+        },
+        "iteration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["SUCCESS", "RETURNED", "ESCALATED"]
+        },
+        "return_reason": {
+          "type": "string",
+          "description": "再実行理由"
+        },
+        "blocker_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "検出されたブロッカーのID"
+        },
+        "output_summary": {
+          "type": "string",
+          "description": "フェーズ出力の概要"
+        }
+      }
+    },
+    "BlockerIssue": {
+      "type": "object",
+      "description": "ブロッカー問題",
+      "required": ["id", "category", "severity", "description", "first_detected", "occurrences", "resolved"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ブロッカーID（BLOCKER-001形式）"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["TEST_FAILURE", "LINT_ERROR", "TYPE_ERROR", "RUNTIME_ERROR", "DEPENDENCY_CONFLICT"],
+          "description": "ブロッカーのカテゴリ"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["BLOCKER", "MAJOR", "MINOR"]
+        },
+        "description": {
+          "type": "string",
+          "description": "問題の説明"
+        },
+        "file": {
+          "type": "string",
+          "description": "問題が検出されたファイルパス"
+        },
+        "line": {
+          "type": "integer",
+          "description": "問題が検出された行番号"
+        },
+        "first_detected": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最初に検出された日時"
+        },
+        "occurrences": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "検出回数"
+        },
+        "resolved": {
+          "type": "boolean",
+          "description": "解決済みかどうか"
+        },
+        "resolution_iteration": {
+          "type": "integer",
+          "description": "解決されたイテレーション"
+        }
+      }
+    },
+    "ExecutionBatch": {
+      "type": "object",
+      "description": "並列実行バッチ",
+      "required": ["batch_id", "refactoring_ids", "status", "timestamp"],
+      "properties": {
+        "batch_id": {
+          "type": "string",
+          "description": "バッチID（BATCH-001形式）"
+        },
+        "refactoring_ids": {
+          "type": "array",
+          "description": "バッチ内のリファクタリングID",
+          "items": { "type": "string" }
+        },
+        "parallel_execution": {
+          "type": "boolean",
+          "description": "並列実行されたかどうか",
+          "default": false
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "IN_PROGRESS", "COMPLETED", "FAILED", "ROLLED_BACK"],
+          "description": "バッチの実行状態"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "バッチ開始タイムスタンプ"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "バッチ完了タイムスタンプ"
+        },
+        "execution_time_ms": {
+          "type": "integer",
+          "description": "実行時間（ミリ秒）"
+        },
+        "worker_results": {
+          "type": "array",
+          "description": "各ワーカーの実行結果",
+          "items": {
+            "type": "object",
+            "properties": {
+              "refactoring_id": { "type": "string" },
+              "status": { "type": "string", "enum": ["SUCCESS", "FAILED"] },
+              "execution_time_ms": { "type": "integer" },
+              "error_message": { "type": "string" }
+            }
+          }
+        },
+        "verification": {
+          "$ref": "#/definitions/VerificationResult",
+          "description": "バッチ全体の検証結果"
+        }
+      }
+    }
+  }
+}
