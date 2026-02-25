@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "WorkflowState",
-  "description": "マルチエージェントワークフロー（SDA → DA → QGA）の状態管理スキーマ",
+  "description": "マルチエージェントワークフロー（Multi-Perspective Planning → SDA → DA → QGA）の状態管理スキーマ",
   "type": "object",
   "required": [
     "id",
@@ -25,7 +25,7 @@
     },
     "current_phase": {
       "type": "string",
-      "enum": ["INIT", "SDA", "DA", "QGA", "COMPLETE", "ESCALATED"],
+      "enum": ["INIT", "PLANNING", "PDA", "SDA", "DA", "QGA", "COMPLETE", "ESCALATED"],
       "description": "現在のワークフローフェーズ"
     },
     "iteration": {
@@ -33,6 +33,75 @@
       "minimum": 0,
       "maximum": 10,
       "description": "現在のリトライ回数（エスカレーション前の最大は3）"
+    },
+    "planning_context": {
+      "type": "object",
+      "description": "マルチ観点プランニングのコンテキスト",
+      "properties": {
+        "perspective_analyses": {
+          "type": "array",
+          "description": "各観点からの分析結果",
+          "items": {
+            "$ref": "#/definitions/PerspectiveAnalysis"
+          }
+        },
+        "planning_decision": {
+          "$ref": "#/definitions/PlanningDecision",
+          "description": "統合されたプランニング決定"
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "description": "確定した受け入れ条件",
+          "items": {
+            "$ref": "#/definitions/AcceptanceCriterion"
+          }
+        },
+        "team_context": {
+          "$ref": "#/definitions/TeamContext",
+          "description": "Agent Teams モード時のチームコンテキスト"
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": ["SUB_AGENT", "AGENT_TEAMS"],
+          "description": "PLANNING フェーズの実行モード"
+        }
+      }
+    },
+    "decision_log": {
+      "type": "array",
+      "description": "全フェーズの意思決定ログ",
+      "items": {
+        "$ref": "#/definitions/DecisionLogEntry"
+      }
+    },
+    "traceability": {
+      "type": "object",
+      "description": "要件→実装→テスト→検証のトレーサビリティ",
+      "properties": {
+        "requirement_to_implementation": {
+          "type": "object",
+          "description": "要件IDから実装ファイルへのマッピング",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "implementation_to_test": {
+          "type": "object",
+          "description": "実装ファイルからテストファイルへのマッピング",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "test_to_verification": {
+          "type": "object",
+          "description": "テストIDから検証結果へのマッピング",
+          "additionalProperties": {
+            "$ref": "#/definitions/VerificationResult"
+          }
+        }
+      }
     },
     "phase_history": {
       "type": "array",
@@ -60,13 +129,286 @@
     }
   },
   "definitions": {
+    "PerspectiveAnalysis": {
+      "type": "object",
+      "description": "特定観点からのプラン分析結果",
+      "required": ["perspective", "timestamp", "request_understanding"],
+      "properties": {
+        "perspective": {
+          "type": "string",
+          "enum": ["technical", "ux-dx", "operations", "security"],
+          "description": "分析観点"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "request_understanding": {
+          "type": "string",
+          "description": "リクエストの解釈"
+        },
+        "concerns": {
+          "type": "array",
+          "description": "懸念事項",
+          "items": {
+            "type": "object",
+            "required": ["id", "severity", "description"],
+            "properties": {
+              "id": { "type": "string" },
+              "severity": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+              "description": { "type": "string" },
+              "recommendation": { "type": "string" }
+            }
+          }
+        },
+        "opportunities": {
+          "type": "array",
+          "description": "改善機会",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": { "type": "string" },
+              "benefit": { "type": "string" }
+            }
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "description": "制約条件",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": { "type": "string" },
+              "impact": { "type": "string" }
+            }
+          }
+        },
+        "acceptance_criteria_suggestions": {
+          "type": "array",
+          "description": "提案する受け入れ条件",
+          "items": {
+            "type": "object",
+            "properties": {
+              "criterion": { "type": "string" },
+              "verification_method": { "type": "string" },
+              "perspective_rationale": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "PlanningDecision": {
+      "type": "object",
+      "description": "統合されたプランニング決定",
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "description": "決定ID（PLAN-{timestamp}形式）"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "perspectives_received": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "consensus_points": {
+          "type": "array",
+          "description": "合意事項",
+          "items": {
+            "type": "object",
+            "properties": {
+              "point": { "type": "string" },
+              "supporting_perspectives": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "conflicts_resolved": {
+          "type": "array",
+          "description": "解決した矛盾",
+          "items": {
+            "type": "object",
+            "properties": {
+              "conflict_id": { "type": "string" },
+              "perspectives": { "type": "array", "items": { "type": "string" } },
+              "positions": { "type": "object" },
+              "resolution": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        },
+        "trade_offs_accepted": {
+          "type": "array",
+          "description": "受容したトレードオフ",
+          "items": {
+            "type": "object",
+            "properties": {
+              "trade_off": { "type": "string" },
+              "chosen_option": { "type": "string" },
+              "rejected_option": { "type": "string" },
+              "rationale": { "type": "string" },
+              "risks": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "included": { "type": "array", "items": { "type": "string" } },
+            "excluded": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "AcceptanceCriterion": {
+      "type": "object",
+      "description": "受け入れ条件",
+      "required": ["id", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "受け入れ条件ID（AC-001形式）"
+        },
+        "description": {
+          "type": "string",
+          "description": "受け入れ条件の説明"
+        },
+        "source_perspectives": {
+          "type": "array",
+          "description": "この条件を提案した観点",
+          "items": { "type": "string" }
+        },
+        "given": {
+          "type": "string",
+          "description": "前提条件"
+        },
+        "when": {
+          "type": "string",
+          "description": "操作・トリガー"
+        },
+        "then": {
+          "type": "array",
+          "description": "期待結果",
+          "items": { "type": "string" }
+        },
+        "verification": {
+          "type": "object",
+          "properties": {
+            "method": { "type": "string" },
+            "command": { "type": "string" },
+            "expected_result": { "type": "string" }
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "VERIFIED", "FAILED", "PARTIAL", "NOT_TESTABLE"],
+          "description": "検証状態"
+        },
+        "verification_result": {
+          "$ref": "#/definitions/VerificationResult"
+        }
+      }
+    },
+    "DecisionLogEntry": {
+      "type": "object",
+      "description": "意思決定ログエントリ",
+      "required": ["timestamp", "phase", "agent", "decision"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "phase": {
+          "type": "string",
+          "description": "決定が行われたフェーズ"
+        },
+        "agent": {
+          "type": "string",
+          "description": "決定を行ったエージェント"
+        },
+        "decision_type": {
+          "type": "string",
+          "description": "決定の種類（scope, architecture, trade-off, etc.）"
+        },
+        "input_summary": {
+          "type": "string",
+          "description": "入力の要約"
+        },
+        "decision": {
+          "type": "string",
+          "description": "決定事項"
+        },
+        "alternatives_considered": {
+          "type": "array",
+          "description": "検討した代替案",
+          "items": { "type": "string" }
+        },
+        "rationale": {
+          "type": "string",
+          "description": "決定理由"
+        },
+        "impact": {
+          "type": "string",
+          "description": "影響範囲"
+        }
+      }
+    },
+    "VerificationResult": {
+      "type": "object",
+      "description": "検証結果",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "PARTIAL", "SKIPPED"]
+        },
+        "method_performed": {
+          "type": "string",
+          "description": "実施した検証方法"
+        },
+        "command_executed": {
+          "type": "string",
+          "description": "実行したコマンド"
+        },
+        "actual_result": {
+          "type": "string",
+          "description": "実際の結果"
+        },
+        "expected_result": {
+          "type": "string",
+          "description": "期待結果"
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["test_output", "coverage_report", "manual_check", "log"]
+            },
+            "location": { "type": "string" },
+            "summary": { "type": "string" }
+          }
+        },
+        "gap_analysis": {
+          "type": "object",
+          "description": "失敗時の分析",
+          "properties": {
+            "root_cause": { "type": "string" },
+            "suggested_fix": { "type": "string" }
+          }
+        }
+      }
+    },
     "PhaseResult": {
       "type": "object",
       "required": ["phase", "iteration", "timestamp", "status"],
       "properties": {
         "phase": {
           "type": "string",
-          "enum": ["SDA", "DA", "QGA"]
+          "enum": ["PLANNING", "PDA", "SDA", "DA", "QGA"]
         },
         "iteration": {
           "type": "integer",
@@ -86,7 +428,7 @@
         },
         "return_to": {
           "type": "string",
-          "enum": ["SDA", "DA"],
+          "enum": ["PLANNING", "PDA", "SDA", "DA"],
           "description": "返却先フェーズ"
         },
         "blocker_ids": {
@@ -130,6 +472,10 @@
           "type": "string",
           "description": "問題の説明"
         },
+        "related_ac": {
+          "type": "string",
+          "description": "関連する受け入れ条件ID"
+        },
         "file": {
           "type": "string",
           "description": "問題が検出されたファイルパス"
@@ -155,6 +501,120 @@
         "resolution_iteration": {
           "type": "integer",
           "description": "解決されたイテレーション"
+        }
+      }
+    },
+    "TeamContext": {
+      "type": "object",
+      "description": "Agent Teams モード時のチームコンテキスト",
+      "properties": {
+        "team_id": {
+          "type": "string",
+          "description": "チームの一意識別子"
+        },
+        "members": {
+          "type": "array",
+          "description": "チームメンバーの情報",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "メンバー名（technical-perspective など）"
+              },
+              "agent_id": {
+                "type": "string",
+                "description": "エージェントID"
+              },
+              "perspective": {
+                "type": "string",
+                "enum": ["technical", "ux-dx", "operations", "security"],
+                "description": "分析観点"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["active", "idle", "completed", "shutdown"],
+                "description": "メンバーの状態"
+              }
+            }
+          }
+        },
+        "message_log": {
+          "type": "array",
+          "description": "チームメンバー間の相互通信履歴",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "from": {
+                "type": "string",
+                "description": "送信者名"
+              },
+              "to": {
+                "type": "string",
+                "description": "受信者名（broadcast の場合は \"all\"）"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["message", "broadcast"],
+                "description": "メッセージタイプ"
+              },
+              "summary": {
+                "type": "string",
+                "description": "メッセージの要約"
+              },
+              "content": {
+                "type": "string",
+                "description": "メッセージ本文"
+              }
+            }
+          }
+        },
+        "discussion_summary": {
+          "type": "object",
+          "description": "議論の要約",
+          "properties": {
+            "key_discussions": {
+              "type": "array",
+              "description": "主要な議論",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "topic": { "type": "string" },
+                  "participants": { "type": "array", "items": { "type": "string" } },
+                  "outcome": { "type": "string" },
+                  "rationale": { "type": "string" }
+                }
+              }
+            },
+            "conflicts_resolved": {
+              "type": "array",
+              "description": "解決した矛盾",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "conflict": { "type": "string" },
+                  "resolution": { "type": "string" },
+                  "agreed_by": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            },
+            "unresolved_conflicts": {
+              "type": "array",
+              "description": "未解決の矛盾（エスカレーション対象）",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "conflict": { "type": "string" },
+                  "positions": { "type": "object" },
+                  "escalation_needed": { "type": "boolean" }
+                }
+              }
+            }
+          }
         }
       }
     }
