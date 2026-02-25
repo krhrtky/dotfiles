@@ -367,6 +367,21 @@ PDA の出力を受け取ったら:
 
 {phase_history を時系列で表示}
 
+## フェーズ別品質サマリー
+
+| フェーズ | 品質チェック | 結果 | リトライ | 備考 |
+|---------|------------|------|---------|------|
+| INIT | インプット品質 | {input_quality_check.overall} | - | {不足項目があれば記載} |
+| PLANNING | 分析品質 | {analysis_quality の総合判定} | {retried: true の件数} | {WARNING の観点を列挙} |
+| PDA | AC テスタビリティ | {ac_testability_check.overall} | {retried ? 1 : 0} | {不合格 AC があれば AC-ID を列挙} |
+| DA | セキュリティセルフチェック | {security_check 結果} | - | {false 項目があれば列挙} |
+| QGA | DoD 判定 | {gate_decision} | - | - |
+
+### 改善示唆
+
+品質チェックで WARNING またはリトライが発生したフェーズについて、改善の方向性を 1-2 行で記載する。
+例: 「PLANNING operations 観点の分析品質が低い傾向 → プロンプトの運用要件に関する指示を強化すべきか」
+
 ## リスクと残課題
 
 {blocker_history で resolved: false のものを表示}
